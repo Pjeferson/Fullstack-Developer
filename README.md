@@ -105,3 +105,21 @@ Both need the user listing/CRUD to already exist (the dashboard counts users, th
 ### Final
 
 10. **docs/readme-final**
+
+## Commit message convention
+
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/): `<type>: <description>`, all lowercase.
+
+Types used in this project:
+
+| Type | Use for |
+|---|---|
+| `feat` | new user-facing functionality |
+| `fix` | bug fixes |
+| `chore` | scaffolding, config, dependencies — no source behavior change |
+| `build` | build tooling / bundler changes (Vite, asset pipeline, etc.) |
+| `docs` | documentation only |
+| `refactor` | code change that neither fixes a bug nor adds a feature |
+| `test` | adding or fixing tests |
+
+Example: `feat: add inertia rails for react frontend`
