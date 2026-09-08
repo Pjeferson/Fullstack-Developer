@@ -1,6 +1,6 @@
 # Every action here operates on Current.user — there is no :id/:user_id
 # param anywhere in this controller, so there is no route or parameter
-# that could name a different User to view or edit.
+# that could name a different User to view, edit, or delete.
 class ProfilesController < InertiaController
   def show
     render inertia: "profiles/show", props: { user: Current.user.profile_json }
@@ -16,6 +16,13 @@ class ProfilesController < InertiaController
     else
       redirect_to profile_path, inertia: { errors: Current.user.errors }
     end
+  end
+
+  def destroy
+    user = Current.user
+    terminate_session
+    user.destroy
+    redirect_to new_session_path, notice: "Your account has been deleted."
   end
 
   private

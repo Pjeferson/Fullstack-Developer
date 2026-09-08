@@ -12,8 +12,8 @@
 
 ## 3. Self-delete session handling
 
-- [ ] 3.1 Implement `ProfilesController#destroy` to call the existing `terminate_session` helper before destroying `Current.user`, then redirect to `new_session_path` with a confirmation notice — verify with a test asserting the Session row and cookie are gone and the response redirects to sign-in
-- [ ] 3.2 Verify `Current.user`'s avatar attachment and sessions are cleaned up on delete (already covered by `dependent: :destroy`/`dependent: :purge_later` on the model — confirm with a test, don't re-implement)
+- [x] 3.1 Implement `ProfilesController#destroy` to call the existing `terminate_session` helper before destroying `Current.user`, then redirect to `new_session_path` with a confirmation notice — verify with a test asserting the Session row and cookie are gone and the response redirects to sign-in
+- [x] 3.2 Verify `Current.user`'s avatar attachment and sessions are cleaned up on delete (already covered by `dependent: :destroy`/`dependent: :purge_later` on the model — confirm with a test, don't re-implement)
 
 ## 4. Frontend
 

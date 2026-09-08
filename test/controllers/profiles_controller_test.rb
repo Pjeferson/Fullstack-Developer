@@ -92,4 +92,28 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to profile_path
     assert_not @user.reload.avatar_image.attached?
   end
+
+  test "user can delete their own account" do
+    sign_in_as(@user)
+
+    assert_difference "User.count", -1 do
+      delete profile_path
+    end
+
+    assert_redirected_to new_session_path
+    assert_empty cookies[:session_id]
+  end
+
+  test "deleting the account also removes the session record and the avatar attachment" do
+    sign_in_as(@user)
+    @user.avatar_image.attach(fixture_file_upload("avatar.png", "image/png"))
+    session_id = Current.session.id
+
+    assert_enqueued_with(job: ActiveStorage::PurgeJob) do
+      delete profile_path
+    end
+
+    assert_not Session.exists?(session_id)
+    assert_not ActiveStorage::Attachment.exists?(record_type: "User", record_id: @user.id)
+  end
 end
