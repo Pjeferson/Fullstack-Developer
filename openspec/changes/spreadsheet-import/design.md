@@ -43,22 +43,28 @@ module Imports
 end
 ```
 
-`Imports::CsvParser` uses Ruby's `CSV.foreach(path, headers: true)`, yielding `row.to_h`.
-`Imports::XlsxParser` uses `roo`'s `each_row_streaming` (never loads the whole sheet into
-memory), captures the first row as headers, and zips each subsequent row's cell values against
-them so its output hash shape matches the CSV parser's exactly.
+Both parsers take a plain local file **path** (a string), not an ActiveStorage attachment —
+this keeps them decoupled from ActiveStorage and trivially unit-testable against fixture files
+on disk. `Imports::CsvParser` uses Ruby's `CSV.foreach(path, headers: true)`, yielding
+`row.to_h`. `Imports::XlsxParser` uses `roo`'s `each_row_streaming` (never loads the whole sheet
+into memory), captures the first row as headers, and zips each subsequent row's cell values
+against them so its output hash shape matches the CSV parser's exactly.
 
 `each_row` returns `enum_for(:each_row)` when called without a block, so the job can call
 `parser.each_row.each_slice(BATCH_SIZE)` — `each_slice` needs an `Enumerator`, and a plain
 "only accepts a block" method raises `LocalJumpError` there. This stays memory-safe: the
 `Enumerator` is fiber-backed and lazy, so the file is still read one row at a time; the batching
 just groups yields before the job acts on them, never materializing the full file as an array.
+The job is the one place that bridges to ActiveStorage: it wraps the whole batching loop in
+`import.file.open { |tempfile| ... }`, so the downloaded/local blob file stays on disk for
+exactly as long as the enumerator needs it, and hands `tempfile.path` to the parser.
 
-`Imports::ParserFactory.for(attachment)` selects the parser by content-type, falling back to
-the filename extension when the content-type is generic (`text/plain`, `application/octet-stream`
-— common for a CSV exported by some spreadsheet tools), and raises `Imports::UnsupportedFormatError`
-otherwise. This is a selection/factory, not an action, so it stays a class method (`.for`, not
-`.new(...).call`) — consistent with how this differs from an action service like
+`Imports::ParserFactory.for(content_type:, filename:, path:)` selects the parser by
+content-type, falling back to the filename extension when the content-type is generic
+(`text/plain`, `application/octet-stream` — common for a CSV exported by some spreadsheet
+tools), and raises `Imports::UnsupportedFormatError` otherwise. This is a selection/factory, not
+an action, so it stays a class method (`.for`, not `.new(...).call`) — consistent with how this
+differs from an action service like
 `Users::Inviter`.
 
 ### Row validation is its own service, deliberately separate from `User`'s validations

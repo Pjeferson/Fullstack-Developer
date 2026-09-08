@@ -13,16 +13,16 @@
 
 ## 2. Parser layer (CSV and XLSX behind one interface)
 
-- [ ] 2.1 Add `app/services/imports/parser.rb` (shared `each_row`/`row_count` interface) and
+- [x] 2.1 Add `app/services/imports/parser.rb` (shared `each_row`/`row_count` interface) and
   `app/services/imports/unsupported_format_error.rb`
-- [ ] 2.2 Add `app/services/imports/csv_parser.rb` and fixture files (a valid small CSV, one
+- [x] 2.2 Add `app/services/imports/csv_parser.rb` and fixture files (a valid small CSV, one
   with a malformed/short row, one header-only/empty file); add
   `test/services/imports/csv_parser_test.rb` covering `each_row` (with and without a block —
   the no-block case must return an `Enumerator`) and `row_count` against those fixtures
-- [ ] 2.3 Add `app/services/imports/xlsx_parser.rb` and equivalent XLSX fixtures; add
+- [x] 2.3 Add `app/services/imports/xlsx_parser.rb` and equivalent XLSX fixtures; add
   `test/services/imports/xlsx_parser_test.rb` mirroring 2.2's coverage, and assert its output
   hashes have the exact same shape as `CsvParser`'s for equivalent content
-- [ ] 2.4 Add `app/services/imports/parser_factory.rb` (content-type match with filename-
+- [x] 2.4 Add `app/services/imports/parser_factory.rb` (content-type match with filename-
   extension fallback, raises `Imports::UnsupportedFormatError` otherwise) and
   `test/services/imports/parser_factory_test.rb` covering CSV, XLSX, and the unsupported case
 
