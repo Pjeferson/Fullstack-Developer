@@ -95,8 +95,8 @@
 
 ## 7. Full verification
 
-- [ ] 7.1 Run `bin/rails test` (full suite green), `bin/rubocop`, and `bin/brakeman` with no new
+- [x] 7.1 Run `bin/rails test` (full suite green), `bin/rubocop`, and `bin/brakeman` with no new
   offenses
-- [ ] 7.2 Manual smoke test via a running `bin/rails server`: sign in as the admin fixture,
+- [x] 7.2 Manual smoke test via a running `bin/rails server`: sign in as the admin fixture,
   upload a small CSV with a mix of a valid row, a duplicate-email row, and an invalid row, and
   confirm the resulting counts on the `show` page match; repeat with an XLSX file
