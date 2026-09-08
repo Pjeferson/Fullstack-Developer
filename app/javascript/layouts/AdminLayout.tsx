@@ -17,6 +17,9 @@ export default function AdminLayout({ children }: { children: ReactNode }) {
 
         <div className="flex items-center gap-4 text-sm text-gray-600">
           {current_user && <span>{current_user.email_address}</span>}
+          <Link href="/admin/spreadsheet_imports/new" className="underline">
+            Import users
+          </Link>
           <Link href="/profile" className="underline">
             My profile
           </Link>

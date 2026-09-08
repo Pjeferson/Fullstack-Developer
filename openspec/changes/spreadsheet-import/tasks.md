@@ -83,14 +83,14 @@
 
 ## 6. Frontend
 
-- [ ] 6.1 Add `app/javascript/pages/admin/spreadsheet_imports/new.tsx` (file input, submit via
+- [x] 6.1 Add `app/javascript/pages/admin/spreadsheet_imports/new.tsx` (file input, submit via
   `useForm`/`post` as `multipart/form-data`, backend errors surfaced the existing
   `errors.<field>` way) using `AdminLayout`
-- [ ] 6.2 Add `app/javascript/pages/admin/spreadsheet_imports/show.tsx` (renders the import's
+- [x] 6.2 Add `app/javascript/pages/admin/spreadsheet_imports/show.tsx` (renders the import's
   persisted status and counts — processed/success/error — from Inertia props; no per-row detail
   is shown, only totals; a "Refresh" affordance is enough since this branch has no live updates
   — see design.md's Non-Goals) using `AdminLayout`
-- [ ] 6.3 Add a "Import users" link from `AdminLayout` (or the users index) to
+- [x] 6.3 Add a "Import users" link from `AdminLayout` (or the users index) to
   `/admin/spreadsheet_imports/new`, and confirm `npm run check` is clean
 
 ## 7. Full verification
