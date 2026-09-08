@@ -1,0 +1,71 @@
+schema: spec-driven
+
+# Project context (optional)
+# This is shown to AI when creating artifacts.
+# Add your tech stack, conventions, style guides, domain knowledge, etc.
+context: |
+  Tech stack: Rails 8.1 (Ruby 4.0) + Inertia.js + React 19 (TypeScript),
+  PostgreSQL, Tailwind CSS v4, Vite. Solid Queue/Cache/Cable for
+  background jobs/cache/cable, used with DB-backed adapters only in
+  production — development keeps them lightweight (in-process async
+  jobs, memory-store cache, async cable) to avoid needing extra local
+  databases.
+
+  Auth: Rails 8's built-in session-cookie authentication generator
+  (has_secure_password + a Session model), not Devise/JWT. Every
+  controller requires an authenticated session by default
+  (Authentication concern in ApplicationController); a controller opts
+  out explicitly with allow_unauthenticated_access.
+
+  Frontend: Inertia pages live under app/javascript/pages/<controller
+  path>/<action>.tsx, matching Rails' controller_path/action_name
+  convention. Tailwind utility classes only, no CSS modules. No
+  react-hook-form/zod — forms use Inertia's useForm with native HTML5
+  validation, backend errors surfaced via
+  `redirect_to path, inertia: { errors: record.errors }`. No js-routes
+  gem: paths are hardcoded strings matching config/routes.rb.
+
+  Backend conventions: business logic that isn't simple CRUD lives in
+  app/services/<domain>/<verb>.rb (e.g. Users::AvatarAssigner,
+  Users::Inviter), called as `Service.new(args).call` — not a
+  `self.call` factory shortcut, and not $class methods on the model,
+  since that keeps side effects like sending email out of persistence
+  code paths. Non-CRUD controller actions (e.g. toggling a role) get
+  their own single-purpose controller instead of a bespoke action
+  bolted onto a resource controller. Sensitive fields (like `role`) are
+  deliberately excluded from a resource's general strong params and
+  only settable through their own dedicated endpoint, to make
+  privilege-escalation structurally impossible rather than relying on
+  developer discipline.
+
+  Commits: Conventional Commits (feat/fix/chore/docs/refactor/test/
+  build), one logical change per commit, tests travel with the commit
+  that needs them rather than being batched at the end. Each commit is
+  staged and shown for review before being made.
+
+  Testing: Minitest (not RSpec), fixtures over factories, request specs
+  via ActionDispatch::IntegrationTest, inertia_rails/minitest's
+  assert_inertia_* helpers. Object#stub for mocking (via the
+  minitest-mock gem — Minitest 6 split it out of core).
+
+# Per-artifact rules (optional)
+# Add custom rules for specific artifacts.
+# Example:
+#   rules:
+#     proposal:
+#       - Keep proposals under 500 words
+#       - Always include a "Non-goals" section
+#     tasks:
+#       - Break tasks into chunks of max 2 hours
+
+# Per-operation guidance (optional)
+# Add advisory guidance for how apply and archive work should be conducted.
+# This is separate from artifact rules above.
+# Example:
+#   operations:
+#     apply:
+#       guidance:
+#         - Keep test summaries concise
+#     archive:
+#       guidance:
+#         - Summarize the archive outcome before finishing

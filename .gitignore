@@ -44,3 +44,8 @@ node_modules
 # https://vitejs.dev/guide/env-and-mode.html#env-files
 *.local
 
+# Claude Code local/session runtime state (not project config — the
+# skills/commands under .claude/ are tracked, this is not)
+/.claude/settings.local.json
+/.claude/scheduled_tasks.lock
+
