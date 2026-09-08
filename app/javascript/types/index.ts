@@ -15,7 +15,9 @@ export type SharedProps = {
   current_user: CurrentUser | null
 }
 
-export type AdminUser = {
+// Matches User#profile_json — used by both the admin user list/edit
+// pages and the self-service profile page, so they can't drift apart.
+export type UserProfile = {
   id: number
   email_address: string
   full_name: string

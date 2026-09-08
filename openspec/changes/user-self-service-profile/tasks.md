@@ -17,9 +17,9 @@
 
 ## 4. Frontend
 
-- [ ] 4.1 Add `app/javascript/pages/profiles/show.tsx`: a single page showing the current values (email, full name, role read-only) as a pre-filled editable form, reusing the existing `AvatarField` component as-is — verify `npm run check` passes
-- [ ] 4.2 Wire the delete action with the same `router.delete(path, { onBefore: () => confirm(...) })` pattern already used on `admin/users/index.tsx` — verify manually that cancelling the confirm dialog aborts the request
-- [ ] 4.3 Confirm there is no nav link to `/profile` needed for an admin beyond what already exists (admins reach `/admin/users`); add a "My profile" link somewhere reachable for a non-admin, since `AdminLayout` doesn't apply to them — decide the minimal placement (e.g. a small top-of-page identity line, no new shared layout needed for one page) and verify it renders
+- [x] 4.1 Add `app/javascript/pages/profiles/show.tsx`: a single page showing the current values (email, full name, role read-only) as a pre-filled editable form, reusing the existing `AvatarField` component as-is — verify `npm run check` passes
+- [x] 4.2 Wire the delete action with the same `router.delete(path, { onBefore: () => confirm(...) })` pattern already used on `admin/users/index.tsx` — verify manually that cancelling the confirm dialog aborts the request
+- [x] 4.3 Confirm there is no nav link to `/profile` needed for an admin beyond what already exists (admins reach `/admin/users`); add a "My profile" link somewhere reachable for a non-admin, since `AdminLayout` doesn't apply to them — decide the minimal placement (e.g. a small top-of-page identity line, no new shared layout needed for one page) and verify it renders
 
 ## 5. Full verification
 

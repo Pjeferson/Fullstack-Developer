@@ -3,16 +3,16 @@ import { ReactNode } from 'react'
 
 import AdminLayout from '@/layouts/AdminLayout'
 import RoleBadge from '@/components/RoleBadge'
-import { AdminUser } from '@/types'
+import { UserProfile } from '@/types'
 
-export default function AdminUsersIndex({ users }: { users: AdminUser[] }) {
-  function handleDelete(user: AdminUser) {
+export default function AdminUsersIndex({ users }: { users: UserProfile[] }) {
+  function handleDelete(user: UserProfile) {
     router.delete(`/admin/users/${user.id}`, {
       onBefore: () => confirm(`Delete ${user.email_address}? This cannot be undone.`),
     })
   }
 
-  function handleToggleRole(user: AdminUser) {
+  function handleToggleRole(user: UserProfile) {
     const nextRole = user.role === 'admin' ? 'default' : 'admin'
     router.patch(`/admin/users/${user.id}/role`, { role: nextRole })
   }

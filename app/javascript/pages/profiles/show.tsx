@@ -1,11 +1,11 @@
-import { Head, useForm } from '@inertiajs/react'
-import { FormEvent, ReactNode } from 'react'
+import { Head, router, useForm } from '@inertiajs/react'
+import { FormEvent } from 'react'
 
-import AdminLayout from '@/layouts/AdminLayout'
 import AvatarField from '@/components/AvatarField'
+import RoleBadge from '@/components/RoleBadge'
 import { UserProfile } from '@/types'
 
-export default function AdminUsersEdit({ user }: { user: UserProfile }) {
+export default function ProfilesShow({ user }: { user: UserProfile }) {
   const { data, setData, put, processing, errors } = useForm<{
     full_name: string
     email_address: string
@@ -20,16 +20,36 @@ export default function AdminUsersEdit({ user }: { user: UserProfile }) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
-    put(`/admin/users/${user.id}`)
+    put('/profile')
+  }
+
+  function handleSignOut() {
+    router.delete('/session')
+  }
+
+  function handleDelete() {
+    router.delete('/profile', {
+      onBefore: () => confirm('Delete your account? This cannot be undone.'),
+    })
   }
 
   return (
-    <>
-      <Head title={`Edit ${user.full_name}`} />
+    <div className="mx-auto w-full max-w-sm">
+      <Head title="My profile" />
 
-      <h1 className="text-2xl font-semibold mb-6">Edit user</h1>
+      <div className="flex items-center justify-between mb-6 text-sm text-gray-600">
+        <span>{user.email_address}</span>
+        <button type="button" onClick={handleSignOut} className="underline">
+          Sign out
+        </button>
+      </div>
 
-      <form onSubmit={handleSubmit} className="max-w-sm space-y-4">
+      <h1 className="text-2xl font-semibold mb-1">My profile</h1>
+      <div className="mb-6">
+        <RoleBadge role={user.role} />
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label htmlFor="full_name" className="block text-sm font-medium">
             Full name
@@ -75,8 +95,10 @@ export default function AdminUsersEdit({ user }: { user: UserProfile }) {
           Save
         </button>
       </form>
-    </>
+
+      <button type="button" onClick={handleDelete} className="mt-6 text-sm text-red-600 underline">
+        Delete my account
+      </button>
+    </div>
   )
 }
-
-AdminUsersEdit.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>
