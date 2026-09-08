@@ -11,7 +11,7 @@ module Admin
     end
 
     def create
-      @user = ::Users::Inviter.call(email_address: params[:email_address], full_name: params[:full_name])
+      @user = ::Users::Inviter.new(email_address: params[:email_address], full_name: params[:full_name]).call
 
       if @user.persisted?
         ::Users::AvatarAssigner.new(@user, file: avatar_params[:avatar_image], url: avatar_params[:avatar_image_url]).call

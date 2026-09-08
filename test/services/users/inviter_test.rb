@@ -4,7 +4,7 @@ class Users::InviterTest < ActiveSupport::TestCase
   include ActiveJob::TestHelper
 
   test "creates a persisted user with an unusable random password" do
-    user = Users::Inviter.call(email_address: "invitee@example.com", full_name: "Invitee")
+    user = Users::Inviter.new(email_address: "invitee@example.com", full_name: "Invitee").call
 
     assert user.persisted?
     assert_not user.authenticate("anything")
@@ -13,7 +13,7 @@ class Users::InviterTest < ActiveSupport::TestCase
 
   test "sends a password-reset email so the invitee can set their own password" do
     perform_enqueued_jobs do
-      Users::Inviter.call(email_address: "invitee@example.com", full_name: "Invitee")
+      Users::Inviter.new(email_address: "invitee@example.com", full_name: "Invitee").call
     end
 
     email = ActionMailer::Base.deliveries.last
@@ -21,7 +21,7 @@ class Users::InviterTest < ActiveSupport::TestCase
   end
 
   test "returns an unpersisted user with errors when attributes are invalid" do
-    user = Users::Inviter.call(email_address: users(:one).email_address, full_name: "Duplicate")
+    user = Users::Inviter.new(email_address: users(:one).email_address, full_name: "Duplicate").call
 
     assert_not user.persisted?
     assert_includes user.errors[:email_address], "has already been taken"

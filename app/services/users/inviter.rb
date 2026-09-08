@@ -6,8 +6,6 @@ module Users
   # (spreadsheet import) will likely want to create users without
   # individually emailing each one.
   class Inviter
-    def self.call(...) = new(...).call
-
     def initialize(email_address:, full_name:)
       @email_address = email_address
       @full_name = full_name
