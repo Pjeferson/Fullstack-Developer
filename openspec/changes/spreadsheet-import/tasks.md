@@ -49,13 +49,15 @@
 
 ## 4. Import job with resume
 
-- [ ] 4.1 Add `app/jobs/spreadsheet_import_job.rb` (finds the `SpreadsheetImport`, resolves the
+- [x] 4.1 Add `has_one_attached :file, dependent: :purge_later` to `SpreadsheetImport` (the
+  uploaded spreadsheet itself — omitted from group 1's model task by oversight) and
+  `app/jobs/spreadsheet_import_job.rb` (finds the `SpreadsheetImport`, resolves the
   parser via `Imports::ParserFactory`, sets `total_rows`/`status: :processing`, iterates
   `each_row.each_slice(BATCH_SIZE)` skipping batches below `last_completed_batch`, calls
   `Imports::UserBatchInserter`, updates counts and the checkpoint after each batch, enqueues
   `AttachRemoteAvatarJob` per successfully-inserted row that has an avatar URL, and sets
   `status: :completed`/`:failed` at the end); `discard_on Imports::UnsupportedFormatError`
-- [ ] 4.2 Add `test/jobs/spreadsheet_import_job_test.rb` covering: a full run against a small
+- [x] 4.2 Add `test/jobs/spreadsheet_import_job_test.rb` covering: a full run against a small
   fixture file creates the expected Users and marks the import `completed` with correct counts;
   a run that raises partway through (stub the inserter to raise on the 2nd batch) leaves
   `last_completed_batch` at the batches actually completed and marks the import `failed`; a
