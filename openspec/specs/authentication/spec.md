@@ -17,7 +17,9 @@ and password.
 - **WHEN** a User submits their email address and correct password
 - **THEN** a new Session record is created, a signed, httponly, permanent
   session cookie is set, and the request is redirected to the page the
-  User originally tried to reach (or to root if there was none)
+  User originally tried to reach; if there was none, a non-admin User is
+  redirected to their own profile and an admin User is redirected to the
+  admin User list
 
 #### Scenario: Invalid credentials
 - **WHEN** a User submits an unknown email address or an incorrect

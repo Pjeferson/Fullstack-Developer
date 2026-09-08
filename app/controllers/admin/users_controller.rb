@@ -22,7 +22,7 @@ module Admin
     end
 
     def edit
-      render inertia: "admin/users/edit", props: { user: user_json(@user) }
+      render inertia: "admin/users/edit", props: { user: @user.profile_json }
     end
 
     def update
@@ -58,11 +58,7 @@ module Admin
       end
 
       def users_json
-        User.order(:email_address).map { |user| user_json(user) }
-      end
-
-      def user_json(user)
-        user.as_json(only: %i[id email_address full_name role avatar_processing avatar_error], methods: %i[avatar_url])
+        User.order(:email_address).map(&:profile_json)
       end
   end
 end

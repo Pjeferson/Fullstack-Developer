@@ -15,4 +15,11 @@ class User < ApplicationRecord
 
     Rails.application.routes.url_helpers.rails_blob_path(avatar_image, only_path: true)
   end
+
+  # The shape a User is rendered as wherever their profile is shown or
+  # edited — the admin user list/edit forms and the self-service profile
+  # page both use this, so the two stay in sync automatically.
+  def profile_json
+    as_json(only: %i[id email_address full_name role avatar_processing avatar_error], methods: %i[avatar_url])
+  end
 end
