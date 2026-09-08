@@ -23,7 +23,7 @@
 
 ## 5. Full verification
 
-- [ ] 5.1 Run `bin/rails test` — full suite green
-- [ ] 5.2 Run `bin/rubocop` and `bin/brakeman` on touched files — clean
-- [ ] 5.3 Run `npm run check` — clean
-- [ ] 5.4 Manual smoke test (via the `run` skill or curl, per the pattern used for admin-user-management): sign in as a non-admin, land on `/profile`, edit info, upload/URL an avatar, delete the account, confirm redirected to sign-in and signed out; sign in as an admin, confirm still landing on `/admin/users`
+- [x] 5.1 Run `bin/rails test` — full suite green
+- [x] 5.2 Run `bin/rubocop` and `bin/brakeman` on touched files — clean
+- [x] 5.3 Run `npm run check` — clean
+- [x] 5.4 Manual smoke test (via the `run` skill or curl, per the pattern used for admin-user-management): sign in as a non-admin, land on `/profile`, edit info, upload/URL an avatar, delete the account, confirm redirected to sign-in and signed out; sign in as an admin, confirm still landing on `/admin/users`
