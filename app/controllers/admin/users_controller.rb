@@ -11,10 +11,10 @@ module Admin
     end
 
     def create
-      @user = Users::Inviter.call(email_address: params[:email_address], full_name: params[:full_name])
+      @user = ::Users::Inviter.call(email_address: params[:email_address], full_name: params[:full_name])
 
       if @user.persisted?
-        Users::AvatarAssigner.new(@user, file: avatar_params[:avatar_image], url: avatar_params[:avatar_image_url]).call
+        ::Users::AvatarAssigner.new(@user, file: avatar_params[:avatar_image], url: avatar_params[:avatar_image_url]).call
         redirect_to admin_users_path, notice: "User invited."
       else
         redirect_to new_admin_user_path, inertia: { errors: @user.errors }
@@ -27,7 +27,7 @@ module Admin
 
     def update
       if @user.update(user_params)
-        if Users::AvatarAssigner.new(@user, file: avatar_params[:avatar_image], url: avatar_params[:avatar_image_url]).call
+        if ::Users::AvatarAssigner.new(@user, file: avatar_params[:avatar_image], url: avatar_params[:avatar_image_url]).call
           redirect_to admin_users_path, notice: "User updated."
         else
           redirect_to edit_admin_user_path(@user), inertia: { errors: @user.errors }

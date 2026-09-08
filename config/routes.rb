@@ -3,7 +3,9 @@ Rails.application.routes.draw do
   resources :passwords, param: :token
 
   namespace :admin do
-    resources :users, except: %i[show]
+    resources :users, except: %i[show] do
+      resource :role, only: :update, controller: "users/roles"
+    end
   end
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
