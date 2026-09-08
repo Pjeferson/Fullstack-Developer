@@ -28,18 +28,18 @@
 
 ## 3. Row validation and batch user insertion
 
-- [ ] 3.1 Add `app/services/imports/row_validator.rb` (`new(row).valid?`/`#errors` — checks
+- [x] 3.1 Add `app/services/imports/row_validator.rb` (`new(row).valid?`/`#errors` — checks
   email format, full_name presence, and `role` membership in `User.roles.keys` when present;
   see design.md) and `test/services/imports/row_validator_test.rb` covering: a fully valid row;
   a blank/malformed email; a blank full_name; a blank/missing `role` (valid); `role` set to
   `admin`/`default` (valid); an invalid `role` value (e.g. `superadmin`)
-- [ ] 3.2 Add `app/services/imports/user_batch_inserter.rb` (`new(rows).call` — partitions rows
+- [x] 3.2 Add `app/services/imports/user_batch_inserter.rb` (`new(rows).call` — partitions rows
   via `Imports::RowValidator` first, generates one bcrypt digest per batch for the rows that
   passed, resolves `role` via `User.roles.fetch(role, "default")`, then `insert_all` with
   `returning:` and `unique_by: :index_users_on_email_address`; see design.md) returning
   inserted rows plus every rejected row (both `RowValidator` failures and `insert_all`
   duplicates) with a reason
-- [ ] 3.3 Add `test/services/imports/user_batch_inserter_test.rb` covering: all-valid batch
+- [x] 3.3 Add `test/services/imports/user_batch_inserter_test.rb` covering: all-valid batch
   inserts every row; a batch containing a duplicate of an existing User's email inserts the
   others and reports that one as a duplicate failure; a batch containing a row that fails
   `RowValidator` reports it with that reason and does not reach `insert_all`; a row with `role`
