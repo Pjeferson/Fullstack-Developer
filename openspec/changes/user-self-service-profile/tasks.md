@@ -1,9 +1,9 @@
 ## 1. Routing & controller
 
-- [ ] 1.1 Add `resource :profile, only: %i[show update destroy]` to `config/routes.rb` and verify `bin/rails routes | grep profile` shows `profile` (GET/PATCH/PUT/DELETE), no `:id` segment
-- [ ] 1.2 Add `ProfilesController < InertiaController` with `show`/`update`/`destroy`, always operating on `Current.user` (no `id`/`user_id` param read anywhere in the controller) — verify with a request test asserting there is no route parameter that can target another User
-- [ ] 1.3 Add `profile_params`/`avatar_params` private methods mirroring `Admin::UsersController` (`email_address`, `full_name`; `avatar_image`, `avatar_image_url`) with `role` never permitted — verify with a test asserting a submitted `role` value has no effect on `Current.user.role`
-- [ ] 1.4 Call `Users::AvatarAssigner` from `update`, after `Current.user.update(profile_params)` succeeds, same ordering/error-surfacing pattern as `Admin::UsersController#update` — verify with tests covering a valid upload, a valid URL (job enqueued), and a rejected upload (bad type/size) each surfacing errors via `inertia: { errors: ... }`
+- [x] 1.1 Add `resource :profile, only: %i[show update destroy]` to `config/routes.rb` and verify `bin/rails routes | grep profile` shows `profile` (GET/PATCH/PUT/DELETE), no `:id` segment
+- [x] 1.2 Add `ProfilesController < InertiaController` with `show`/`update`/`destroy`, always operating on `Current.user` (no `id`/`user_id` param read anywhere in the controller) — verify with a request test asserting there is no route parameter that can target another User
+- [x] 1.3 Add `profile_params`/`avatar_params` private methods mirroring `Admin::UsersController` (`email_address`, `full_name`; `avatar_image`, `avatar_image_url`) with `role` never permitted — verify with a test asserting a submitted `role` value has no effect on `Current.user.role`
+- [x] 1.4 Call `Users::AvatarAssigner` from `update`, after `Current.user.update(profile_params)` succeeds, same ordering/error-surfacing pattern as `Admin::UsersController#update` — verify with tests covering a valid upload, a valid URL (job enqueued), and a rejected upload (bad type/size) each surfacing errors via `inertia: { errors: ... }`
 
 ## 2. Post-login redirect
 

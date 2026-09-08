@@ -1,6 +1,7 @@
 Rails.application.routes.draw do
   resource :session
   resources :passwords, param: :token
+  resource :profile, only: %i[show update]
 
   namespace :admin do
     resources :users, except: %i[show] do
