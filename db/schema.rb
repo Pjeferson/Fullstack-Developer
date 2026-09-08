@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_08_184628) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_08_221516) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -51,6 +51,21 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_184628) do
     t.index ["user_id"], name: "index_sessions_on_user_id"
   end
 
+  create_table "spreadsheet_imports", force: :cascade do |t|
+    t.bigint "admin_id", null: false
+    t.datetime "created_at", null: false
+    t.integer "error_count", default: 0, null: false
+    t.datetime "finished_at"
+    t.integer "last_completed_batch", default: 0, null: false
+    t.integer "processed_rows", default: 0, null: false
+    t.datetime "started_at"
+    t.string "status", default: "pending", null: false
+    t.integer "success_count", default: 0, null: false
+    t.integer "total_rows"
+    t.datetime "updated_at", null: false
+    t.index ["admin_id"], name: "index_spreadsheet_imports_on_admin_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "avatar_error"
     t.boolean "avatar_processing", default: false, null: false
@@ -66,4 +81,5 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_08_184628) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "sessions", "users"
+  add_foreign_key "spreadsheet_imports", "users", column: "admin_id"
 end

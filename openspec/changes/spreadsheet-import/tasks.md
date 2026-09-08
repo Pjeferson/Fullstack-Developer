@@ -1,12 +1,12 @@
 ## 1. Dependencies and persisted state
 
-- [ ] 1.1 Add `gem "csv"` and `gem "roo"` to the Gemfile, `bundle install`, and verify
+- [x] 1.1 Add `gem "csv"` and `gem "roo"` to the Gemfile, `bundle install`, and verify
   `bin/rails runner 'require "csv"; require "roo"; puts "ok"'` prints `ok`
-- [ ] 1.2 Add the `CreateSpreadsheetImports` migration (`admin` FK to `users`, `status`,
+- [x] 1.2 Add the `CreateSpreadsheetImports` migration (`admin` FK to `users`, `status`,
   `total_rows`, `processed_rows`, `success_count`, `error_count`, `last_completed_batch`,
   `started_at`, `finished_at` — no per-row error detail, only aggregate counts; see design.md)
   and run `bin/rails db:migrate` and `db:test:prepare`
-- [ ] 1.3 Add `app/models/spreadsheet_import.rb` (`belongs_to :admin, class_name: "User"`,
+- [x] 1.3 Add `app/models/spreadsheet_import.rb` (`belongs_to :admin, class_name: "User"`,
   `enum :status, { pending: "pending", processing: "processing", completed: "completed",
   failed: "failed" }, default: :pending`) and a `test/models/spreadsheet_import_test.rb`
   covering the default status and the `admin` association
