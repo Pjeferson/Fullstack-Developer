@@ -66,3 +66,5 @@ gem "vite_rails", "~> 3.11"
 gem "inertia_rails-contrib", "~> 0.6.0"
 
 gem "json", "~> 2.9"
+
+gem "ssrf_filter", "~> 1.5"

@@ -346,6 +346,7 @@ GEM
       net-sftp (>= 2.1.2)
       net-ssh (>= 2.8.0)
       ostruct
+    ssrf_filter (1.5.0)
     tailwindcss-rails (4.6.0)
       railties (>= 7.0.0)
       tailwindcss-ruby (~> 4.0)
@@ -420,6 +421,7 @@ DEPENDENCIES
   solid_cable
   solid_cache
   solid_queue
+  ssrf_filter (~> 1.5)
   tailwindcss-rails
   thruster
   tzinfo-data
@@ -552,6 +554,7 @@ CHECKSUMS
   solid_cache (1.0.10) sha256=bc05a2fb3ac78a6f43cbb5946679cf9db67dd30d22939ededc385cb93e120d41
   solid_queue (1.7.0) sha256=6566b70b801d1c317c81bba7bcdd5677c019afac584a30374b4164002ca356d3
   sshkit (1.25.1) sha256=be3f10b9d6eb0b44d5eaba3f7cbe41bc6bb894bce4339688ac20124391455b78
+  ssrf_filter (1.5.0) sha256=e03dcdb9d1730d7f6710532a606b3543df2a448a0293ce04a2d995523c5a97f6
   tailwindcss-rails (4.6.0) sha256=d99512867173d55c5ef8890427682299d8539f550cec1408b3d8667a538bd365
   tailwindcss-ruby (4.3.3) sha256=ee0a64030749862deb501acab4c4aaf5adbee13865746a33299d46d7b5d0952a
   tailwindcss-ruby (4.3.3-aarch64-linux-gnu) sha256=c86d6dd3eccc85fe0d792a832b06f2bf3c0a7a83b399308aeb9d8f5725f42a6a
