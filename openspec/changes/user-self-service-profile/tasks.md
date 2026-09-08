@@ -7,8 +7,8 @@
 
 ## 2. Post-login redirect
 
-- [ ] 2.1 Change `after_authentication_url` in `app/controllers/concerns/authentication.rb` to fall back on `Current.user.admin? ? admin_users_url : profile_url` instead of `root_url` — verify with `SessionsControllerTest` cases for both an admin and a non-admin signing in with no prior `return_to_after_authenticating`
-- [ ] 2.2 Verify the existing "return to originally requested page" behavior (`return_to_after_authenticating`) still takes precedence over the role-based fallback — add a regression test if the existing suite doesn't already cover a protected-page-first-then-sign-in flow
+- [x] 2.1 Change `after_authentication_url` in `app/controllers/concerns/authentication.rb` to fall back on `Current.user.admin? ? admin_users_url : profile_url` instead of `root_url` — verify with `SessionsControllerTest` cases for both an admin and a non-admin signing in with no prior `return_to_after_authenticating`
+- [x] 2.2 Verify the existing "return to originally requested page" behavior (`return_to_after_authenticating`) still takes precedence over the role-based fallback — add a regression test if the existing suite doesn't already cover a protected-page-first-then-sign-in flow
 
 ## 3. Self-delete session handling
 
