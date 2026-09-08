@@ -62,6 +62,6 @@ class PasswordsControllerTest < ActionDispatch::IntegrationTest
 
   private
     def assert_notice(text)
-      assert_select "div", /#{text}/
+      assert_inertia_flash { |flash| flash.values.any? { |value| value.to_s.include?(text) } }
     end
 end
