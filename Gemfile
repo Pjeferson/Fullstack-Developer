@@ -59,6 +59,9 @@ group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
   gem "selenium-webdriver"
+
+  # Minitest 6 split Object#stub out of the core gem
+  gem "minitest-mock"
 end
 
 gem "vite_rails", "~> 3.11"
