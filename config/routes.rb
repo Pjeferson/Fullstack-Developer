@@ -7,6 +7,8 @@ Rails.application.routes.draw do
     resources :users, except: %i[show] do
       resource :role, only: :update, controller: "users/roles"
     end
+
+    resources :spreadsheet_imports, only: %i[new create show]
   end
 
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server

@@ -68,10 +68,10 @@
 
 ## 5. Routing, authorization, and controller
 
-- [ ] 5.1 Add `resources :spreadsheet_imports, only: %i[new create show]` under the existing
+- [x] 5.1 Add `resources :spreadsheet_imports, only: %i[new create show]` under the existing
   `namespace :admin do ... end` in `config/routes.rb` (inherits `Admin::BaseController`'s
   `require_admin`, same as the existing admin routes)
-- [ ] 5.2 Add `app/controllers/admin/spreadsheet_imports_controller.rb` (`new` renders the
+- [x] 5.2 Add `app/controllers/admin/spreadsheet_imports_controller.rb` (`new` renders the
   upload form; `create` validates the uploaded file's presence/content-type up front, creates
   the `SpreadsheetImport` record with `admin: Current.user` and the file attached, enqueues
   `SpreadsheetImportJob`, and redirects to `show`; `show` renders the persisted import state as
