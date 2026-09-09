@@ -45,12 +45,12 @@
 
 ## 4. Frontend hooks
 
-- [ ] 4.1 Add `app/javascript/hooks/useImportProgress.ts` (wraps `useChannel` for
+- [x] 4.1 Add `app/javascript/hooks/useImportProgress.ts` (wraps `useChannel` for
   `SpreadsheetImportChannel`) and update `admin/spreadsheet_imports/show.tsx` to use it instead
   of calling `useChannel` directly
-- [ ] 4.2 Add `app/javascript/hooks/useDashboardStats.ts` (wraps `useChannel` for
+- [x] 4.2 Add `app/javascript/hooks/useDashboardStats.ts` (wraps `useChannel` for
   `DashboardChannel`) and the `DashboardStats` type to `app/javascript/types/index.ts`
-- [ ] 4.3 Confirm `npm run check` is clean
+- [x] 4.3 Confirm `npm run check` is clean
 
 ## 5. Dashboard section and paginated list on the frontend
 

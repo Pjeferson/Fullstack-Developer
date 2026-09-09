@@ -2,7 +2,7 @@ import { Head, Link, router } from '@inertiajs/react'
 import { ReactNode, useEffect, useState } from 'react'
 
 import AdminLayout from '@/layouts/AdminLayout'
-import { useChannel } from '@/hooks/useChannel'
+import { useImportProgress } from '@/hooks/useImportProgress'
 import { SpreadsheetImportSummary } from '@/types'
 
 export default function AdminSpreadsheetImportsShow({ import: initialImport }: { import: SpreadsheetImportSummary }) {
@@ -16,11 +16,7 @@ export default function AdminSpreadsheetImportsShow({ import: initialImport }: {
 
   // Applies each broadcast straight to state — summary_json is the one serialization already
   // shared with the initial props, so there's no risk of the two disagreeing on shape.
-  useChannel<SpreadsheetImportSummary>(
-    'SpreadsheetImportChannel',
-    { id: initialImport.id },
-    setSpreadsheetImport
-  )
+  useImportProgress(initialImport.id, setSpreadsheetImport)
 
   const { status, total_rows, processed_rows, success_count, error_count } = spreadsheetImport
   const progressPercent = total_rows ? Math.min(100, Math.round((processed_rows / total_rows) * 100)) : 0
