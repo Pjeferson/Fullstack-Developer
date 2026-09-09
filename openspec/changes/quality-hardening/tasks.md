@@ -41,22 +41,22 @@
 
 ## 6. Client-side schema validation (Zod)
 
-- [ ] 6.1 Add `zod` to `package.json`
-- [ ] 6.2 Add `app/javascript/schemas/` (fullName/email/password primitives; `userFormSchema`,
+- [x] 6.1 Add `zod` to `package.json`
+- [x] 6.2 Add `app/javascript/schemas/` (fullName/email/password primitives; `userFormSchema`,
   `registrationSchema`, `sessionSchema`, `passwordsNewSchema`, `passwordsEditSchema` composed
   from them) mirroring backend rules exactly — no invented stricter rules
-- [ ] 6.3 Add `app/javascript/hooks/useValidation.ts` (`useValidation(schema, data)` →
+- [x] 6.3 Add `app/javascript/hooks/useValidation.ts` (`useValidation(schema, data)` →
   `{ errors, isValid, touch, touchAll }`)
-- [ ] 6.4 Wire into `pages/sessions/new.tsx`, `pages/registrations/new.tsx`,
+- [x] 6.4 Wire into `pages/sessions/new.tsx`, `pages/registrations/new.tsx`,
   `pages/passwords/{new,edit}.tsx`: `onBlur={() => touch('field')}`,
   `error={clientErrors.field ?? errors.field}`, submit handler gains
   `if (!isValid) { touchAll(); return }` before `post`/`put`
-- [ ] 6.5 Wire the same into `components/users/UserForm.tsx` (touch/errors as props from its
+- [x] 6.5 Wire the same into `components/users/UserForm.tsx` (touch/errors as props from its
   caller, `UserModal`, which owns the `useValidation` call alongside its existing `useForm`)
-- [ ] 6.6 Rewrite `pages/profiles/show.tsx` to render `UserForm` instead of its own duplicated
+- [x] 6.6 Rewrite `pages/profiles/show.tsx` to render `UserForm` instead of its own duplicated
   full-name/email fields, wiring its own `useValidation(userFormSchema, data)` the same way
   `UserModal` does
-- [ ] 6.7 Run `bin/rails test` and `npm run check` — both clean
+- [x] 6.7 Run `bin/rails test` and `npm run check` — both clean
 
 ## 7. Final verification
 

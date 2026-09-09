@@ -1,32 +1,38 @@
 import { Head, router, useForm } from '@inertiajs/react'
 import { FormEvent, ReactNode, useState } from 'react'
 
-import AvatarField from '@/components/AvatarField'
 import AppShell from '@/components/layout/AppShell'
 import Avatar from '@/components/ui/Avatar'
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
 import ConfirmDialog from '@/components/ui/ConfirmDialog'
-import Input from '@/components/ui/Input'
 import RoleBadge from '@/components/users/RoleBadge'
+import UserForm, { UserFormData } from '@/components/users/UserForm'
+import { useValidation } from '@/hooks/useValidation'
+import { userFormSchema } from '@/schemas'
 import { UserProfile } from '@/types'
 
 export default function ProfilesShow({ user }: { user: UserProfile }) {
-  const { data, setData, put, processing, errors } = useForm<{
-    full_name: string
-    email_address: string
-    avatar_image: File | null
-    avatar_image_url: string
-  }>({
+  const { data, setData, put, processing, errors } = useForm<UserFormData>({
     full_name: user.full_name,
     email_address: user.email_address,
     avatar_image: null,
     avatar_image_url: '',
   })
+  const {
+    errors: clientErrors,
+    touch,
+    touchAll,
+    isValid,
+  } = useValidation(userFormSchema, { full_name: data.full_name, email_address: data.email_address })
   const [ confirmingDelete, setConfirmingDelete ] = useState(false)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
     put('/profile')
   }
 
@@ -49,39 +55,22 @@ export default function ProfilesShow({ user }: { user: UserProfile }) {
       </div>
 
       <Card>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            id="full_name"
-            label="Full name"
-            type="text"
-            required
-            value={data.full_name}
-            onChange={(e) => setData('full_name', e.target.value)}
-            error={errors.full_name}
-          />
-
-          <Input
-            id="email_address"
-            label="Email address"
-            type="email"
-            required
-            value={data.email_address}
-            onChange={(e) => setData('email_address', e.target.value)}
-            error={errors.email_address}
-          />
-
-          <AvatarField
+        <form onSubmit={handleSubmit}>
+          <UserForm
+            data={data}
+            setData={setData}
+            errors={{
+              full_name: clientErrors.full_name ?? errors.full_name,
+              email_address: clientErrors.email_address ?? errors.email_address,
+              avatar_image: errors.avatar_image,
+            }}
+            touch={touch}
             currentAvatarUrl={user.avatar_url}
-            file={data.avatar_image}
-            url={data.avatar_image_url}
-            onFileChange={(file) => setData('avatar_image', file)}
-            onUrlChange={(url) => setData('avatar_image_url', url)}
-            errors={errors.avatar_image}
           />
-          {user.avatar_processing && <p className="text-sm text-text-muted">Avatar is still processing…</p>}
-          {user.avatar_error && <p className="text-sm text-danger">{user.avatar_error}</p>}
+          {user.avatar_processing && <p className="mt-4 text-sm text-text-muted">Avatar is still processing…</p>}
+          {user.avatar_error && <p className="mt-4 text-sm text-danger">{user.avatar_error}</p>}
 
-          <Button type="submit" disabled={processing} className="w-full">
+          <Button type="submit" disabled={processing} className="mt-4 w-full">
             Save
           </Button>
         </form>

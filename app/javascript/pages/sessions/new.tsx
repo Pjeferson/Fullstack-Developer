@@ -4,6 +4,8 @@ import { FormEvent, ReactNode } from 'react'
 import AuthLayout from '@/components/layout/AuthLayout'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { useValidation } from '@/hooks/useValidation'
+import { sessionSchema } from '@/schemas'
 import { FlashData } from '@/types'
 
 export default function SessionsNew() {
@@ -12,9 +14,14 @@ export default function SessionsNew() {
     email_address: '',
     password: '',
   })
+  const { errors: clientErrors, touch, touchAll, isValid } = useValidation(sessionSchema, data)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
     post('/session')
   }
 
@@ -37,7 +44,8 @@ export default function SessionsNew() {
           required
           value={data.email_address}
           onChange={(e) => setData('email_address', e.target.value)}
-          error={errors.email_address}
+          onBlur={() => touch('email_address')}
+          error={clientErrors.email_address ?? errors.email_address}
         />
 
         <Input
@@ -48,7 +56,8 @@ export default function SessionsNew() {
           required
           value={data.password}
           onChange={(e) => setData('password', e.target.value)}
-          error={errors.password}
+          onBlur={() => touch('password')}
+          error={clientErrors.password ?? errors.password}
         />
 
         <Button type="submit" disabled={processing} className="w-full">

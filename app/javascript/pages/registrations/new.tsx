@@ -4,6 +4,8 @@ import { FormEvent, ReactNode } from 'react'
 import AuthLayout from '@/components/layout/AuthLayout'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { useValidation } from '@/hooks/useValidation'
+import { registrationSchema } from '@/schemas'
 
 // Full name, email, and password only - no confirmation field, no avatar picker. A Visitor
 // registering this way always becomes a `default` User (role is structurally absent from
@@ -15,9 +17,14 @@ export default function RegistrationsNew() {
     email_address: '',
     password: '',
   })
+  const { errors: clientErrors, touch, touchAll, isValid } = useValidation(registrationSchema, data)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
     post('/registration')
   }
 
@@ -37,7 +44,8 @@ export default function RegistrationsNew() {
           required
           value={data.full_name}
           onChange={(e) => setData('full_name', e.target.value)}
-          error={errors.full_name}
+          onBlur={() => touch('full_name')}
+          error={clientErrors.full_name ?? errors.full_name}
         />
 
         <Input
@@ -48,7 +56,8 @@ export default function RegistrationsNew() {
           required
           value={data.email_address}
           onChange={(e) => setData('email_address', e.target.value)}
-          error={errors.email_address}
+          onBlur={() => touch('email_address')}
+          error={clientErrors.email_address ?? errors.email_address}
         />
 
         <Input
@@ -59,7 +68,8 @@ export default function RegistrationsNew() {
           required
           value={data.password}
           onChange={(e) => setData('password', e.target.value)}
-          error={errors.password}
+          onBlur={() => touch('password')}
+          error={clientErrors.password ?? errors.password}
         />
 
         <Button type="submit" disabled={processing} className="w-full">

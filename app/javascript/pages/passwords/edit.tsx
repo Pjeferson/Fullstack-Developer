@@ -4,6 +4,8 @@ import { FormEvent, ReactNode } from 'react'
 import AuthLayout from '@/components/layout/AuthLayout'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { useValidation } from '@/hooks/useValidation'
+import { passwordsEditSchema } from '@/schemas'
 import { FlashData } from '@/types'
 
 export default function PasswordsEdit({ token }: { token: string }) {
@@ -12,9 +14,14 @@ export default function PasswordsEdit({ token }: { token: string }) {
     password: '',
     password_confirmation: '',
   })
+  const { errors: clientErrors, touch, touchAll, isValid } = useValidation(passwordsEditSchema, data)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
     put(`/passwords/${token}`)
   }
 
@@ -36,7 +43,8 @@ export default function PasswordsEdit({ token }: { token: string }) {
           required
           value={data.password}
           onChange={(e) => setData('password', e.target.value)}
-          error={errors.password}
+          onBlur={() => touch('password')}
+          error={clientErrors.password ?? errors.password}
         />
 
         <Input
@@ -47,6 +55,8 @@ export default function PasswordsEdit({ token }: { token: string }) {
           required
           value={data.password_confirmation}
           onChange={(e) => setData('password_confirmation', e.target.value)}
+          onBlur={() => touch('password_confirmation')}
+          error={clientErrors.password_confirmation}
         />
 
         <Button type="submit" disabled={processing} className="w-full">

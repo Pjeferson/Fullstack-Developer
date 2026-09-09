@@ -4,6 +4,8 @@ import { useForm } from '@inertiajs/react'
 import Button from '@/components/ui/Button'
 import Modal from '@/components/ui/Modal'
 import UserForm, { UserFormData } from '@/components/users/UserForm'
+import { useValidation } from '@/hooks/useValidation'
+import { userFormSchema } from '@/schemas'
 import { AdminUserListItem } from '@/types'
 
 const BLANK_DATA: UserFormData = {
@@ -31,6 +33,14 @@ type Props = {
 // the errors shown - simpler than the page-based redirect-with-errors this replaces.
 export default function UserModal({ open, onClose, user }: Props) {
   const { data, setData, post, put, processing, errors, reset, clearErrors } = useForm<UserFormData>(BLANK_DATA)
+  // userFormSchema only covers full_name/email_address - avatar validation stays server-side
+  // (see Users::AvatarAssigner), so only that subset of `data` is checked against it.
+  const {
+    errors: clientErrors,
+    touch,
+    touchAll,
+    isValid,
+  } = useValidation(userFormSchema, { full_name: data.full_name, email_address: data.email_address })
 
   // Reseeds whenever the modal opens (for a fresh create, or to edit a possibly different User)
   // so switching targets never leaks stale data or errors from a previous open.
@@ -55,6 +65,11 @@ export default function UserModal({ open, onClose, user }: Props) {
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
+
     const onSuccess = () => onClose()
 
     if (user) {
@@ -67,7 +82,17 @@ export default function UserModal({ open, onClose, user }: Props) {
   return (
     <Modal open={open} onClose={onClose} title={user ? 'Edit user' : 'Invite a user'}>
       <form onSubmit={handleSubmit}>
-        <UserForm data={data} setData={setData} errors={errors} currentAvatarUrl={user?.avatar_url} />
+        <UserForm
+          data={data}
+          setData={setData}
+          errors={{
+            full_name: clientErrors.full_name ?? errors.full_name,
+            email_address: clientErrors.email_address ?? errors.email_address,
+            avatar_image: errors.avatar_image,
+          }}
+          touch={touch}
+          currentAvatarUrl={user?.avatar_url}
+        />
 
         <div className="mt-6 flex justify-end gap-3">
           <Button type="button" variant="secondary" onClick={onClose}>
