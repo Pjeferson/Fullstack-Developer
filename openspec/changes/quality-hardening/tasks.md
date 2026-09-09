@@ -60,8 +60,8 @@
 
 ## 7. Final verification
 
-- [ ] 7.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
-- [ ] 7.2 Manual check via a real browser: admin User list with several avatars loads with a
+- [x] 7.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
+- [x] 7.2 Manual check via a real browser: admin User list with several avatars loads with a
   flat attachment-query count (checked via Rails log); registration/login/password/profile forms
   show inline errors as fields are blurred and block submission until fixed; a server-only error
   (duplicate email) still appears correctly after submitting
