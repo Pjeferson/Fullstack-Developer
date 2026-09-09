@@ -1,7 +1,13 @@
 import { Head, router, useForm } from '@inertiajs/react'
-import { FormEvent } from 'react'
+import { FormEvent, ReactNode, useState } from 'react'
 
 import AvatarField from '@/components/AvatarField'
+import AppShell from '@/components/layout/AppShell'
+import Avatar from '@/components/ui/Avatar'
+import Button from '@/components/ui/Button'
+import Card from '@/components/ui/Card'
+import ConfirmDialog from '@/components/ui/ConfirmDialog'
+import Input from '@/components/ui/Input'
 import RoleBadge from '@/components/users/RoleBadge'
 import { UserProfile } from '@/types'
 
@@ -17,88 +23,85 @@ export default function ProfilesShow({ user }: { user: UserProfile }) {
     avatar_image: null,
     avatar_image_url: '',
   })
+  const [ confirmingDelete, setConfirmingDelete ] = useState(false)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
     put('/profile')
   }
 
-  function handleSignOut() {
-    router.delete('/session')
-  }
-
   function handleDelete() {
-    router.delete('/profile', {
-      onBefore: () => confirm('Delete your account? This cannot be undone.'),
-    })
+    router.delete('/profile')
   }
 
   return (
-    <div className="mx-auto mt-28 w-full max-w-sm px-5">
+    <div className="mx-auto max-w-lg">
       <Head title="My profile" />
 
-      <div className="flex items-center justify-between mb-6 text-sm text-gray-600">
-        <span>{user.email_address}</span>
-        <button type="button" onClick={handleSignOut} className="underline">
-          Sign out
-        </button>
-      </div>
-
-      <h1 className="text-2xl font-semibold mb-1">My profile</h1>
-      <div className="mb-6">
-        <RoleBadge role={user.role} />
-      </div>
-
-      <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="mb-6 flex items-center gap-4">
+        <Avatar src={user.avatar_url} name={user.full_name} size="lg" />
         <div>
-          <label htmlFor="full_name" className="block text-sm font-medium">
-            Full name
-          </label>
-          <input
+          <h1 className="text-h1 font-bold text-text">{user.full_name}</h1>
+          <div className="mt-1">
+            <RoleBadge role={user.role} />
+          </div>
+        </div>
+      </div>
+
+      <Card>
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <Input
             id="full_name"
+            label="Full name"
             type="text"
             required
             value={data.full_name}
             onChange={(e) => setData('full_name', e.target.value)}
-            className="mt-1 block w-full rounded border-gray-300"
+            error={errors.full_name}
           />
-          {errors.full_name && <p className="text-sm text-red-600">{errors.full_name}</p>}
-        </div>
 
-        <div>
-          <label htmlFor="email_address" className="block text-sm font-medium">
-            Email address
-          </label>
-          <input
+          <Input
             id="email_address"
+            label="Email address"
             type="email"
             required
             value={data.email_address}
             onChange={(e) => setData('email_address', e.target.value)}
-            className="mt-1 block w-full rounded border-gray-300"
+            error={errors.email_address}
           />
-          {errors.email_address && <p className="text-sm text-red-600">{errors.email_address}</p>}
-        </div>
 
-        <AvatarField
-          currentAvatarUrl={user.avatar_url}
-          file={data.avatar_image}
-          url={data.avatar_image_url}
-          onFileChange={(file) => setData('avatar_image', file)}
-          onUrlChange={(url) => setData('avatar_image_url', url)}
-          errors={errors.avatar_image}
-        />
-        {user.avatar_processing && <p className="text-sm text-gray-500">Avatar is still processing…</p>}
-        {user.avatar_error && <p className="text-sm text-red-600">{user.avatar_error}</p>}
+          <AvatarField
+            currentAvatarUrl={user.avatar_url}
+            file={data.avatar_image}
+            url={data.avatar_image_url}
+            onFileChange={(file) => setData('avatar_image', file)}
+            onUrlChange={(url) => setData('avatar_image_url', url)}
+            errors={errors.avatar_image}
+          />
+          {user.avatar_processing && <p className="text-sm text-text-muted">Avatar is still processing…</p>}
+          {user.avatar_error && <p className="text-sm text-danger">{user.avatar_error}</p>}
 
-        <button type="submit" disabled={processing} className="w-full rounded bg-gray-900 text-white py-2">
-          Save
-        </button>
-      </form>
+          <Button type="submit" disabled={processing} className="w-full">
+            Save
+          </Button>
+        </form>
+      </Card>
 
-      <button type="button" onClick={handleDelete} className="mt-6 text-sm text-red-600 underline">
+      <button type="button" onClick={() => setConfirmingDelete(true)} className="mt-6 text-sm text-danger underline">
         Delete my account
       </button>
+
+      <ConfirmDialog
+        open={confirmingDelete}
+        onClose={() => setConfirmingDelete(false)}
+        onConfirm={handleDelete}
+        title="Delete your account"
+        confirmLabel="Delete"
+      >
+        Delete your account? This cannot be undone.
+      </ConfirmDialog>
     </div>
   )
 }
+
+ProfilesShow.layout = (page: ReactNode) => <AppShell>{page}</AppShell>
