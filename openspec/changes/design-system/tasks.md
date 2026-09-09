@@ -91,19 +91,19 @@
 
 ## 8. Rebuild the admin Imports page
 
-- [ ] 8.1 Add `components/imports/ImportStatusBadge.tsx` (thin `ui/Badge` wrapper) and
+- [x] 8.1 Add `components/imports/ImportStatusBadge.tsx` (thin `ui/Badge` wrapper) and
   `ImportUploader.tsx` (upload form, from `pages/admin/spreadsheet_imports/new.tsx`)
-- [ ] 8.2 Add `components/imports/ImportRow.tsx` and `ImportCard.tsx` (table row / mobile card)
+- [x] 8.2 Add `components/imports/ImportRow.tsx` and `ImportCard.tsx` (table row / mobile card)
   and `ImportHistoryTable.tsx` (renders both, same `hidden md:table`/`md:hidden` pattern as
   `UserTable`)
-- [ ] 8.3 Add `components/imports/ImportProgressModal.tsx` (progress bar + counts, from
+- [x] 8.3 Add `components/imports/ImportProgressModal.tsx` (progress bar + counts, from
   `pages/admin/spreadsheet_imports/show.tsx`, on `ui/Modal`, subscribing via the existing
   `useImportProgress` hook)
-- [ ] 8.4 Add `pages/admin/spreadsheet_imports/index.tsx`: `ImportUploader` + `ImportHistoryTable`
+- [x] 8.4 Add `pages/admin/spreadsheet_imports/index.tsx`: `ImportUploader` + `ImportHistoryTable`
   wrapped in `InfiniteScroll`; opens `ImportProgressModal` from a history row's data, or from
   `imports.data[0]` in the upload form's `onSuccess` (see design.md)
-- [ ] 8.5 Delete `pages/admin/spreadsheet_imports/{new,show}.tsx`
-- [ ] 8.6 Run `bin/rails test` and `npm run check` — both clean
+- [x] 8.5 Delete `pages/admin/spreadsheet_imports/{new,show}.tsx`
+- [x] 8.6 Run `bin/rails test` and `npm run check` — both clean
 
 ## 9. Final verification
 

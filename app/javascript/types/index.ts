@@ -47,6 +47,14 @@ export type SpreadsheetImportSummary = {
   error_count: number
 }
 
+// Matches Admin::SpreadsheetImportsController#imports_json — the admin import history only.
+// summary_json itself (shared with every SpreadsheetImportChannel broadcast) doesn't carry
+// these list-only fields.
+export type AdminImportListItem = SpreadsheetImportSummary & {
+  filename: string
+  created_at: string
+}
+
 // Matches Dashboard::StatsQuery#call. by_role always carries every Role key, even at 0 — see
 // StatsQuery's comment for why.
 export type DashboardStats = {
