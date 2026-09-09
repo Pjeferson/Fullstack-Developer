@@ -45,8 +45,8 @@
 
 ## 4. Final verification
 
-- [ ] 4.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
-- [ ] 4.2 Manual smoke test via a real browser: visit `/` signed out → redesigned sign-in page;
+- [x] 4.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
+- [x] 4.2 Manual smoke test via a real browser: visit `/` signed out → redesigned sign-in page;
   follow "Sign up" → register a new User → confirm redirect to `/profile` and that the new User
   shows up as a `default`/Member in the admin dashboard's live count; sign out, sign back in as
   the admin fixture → redirected to `/admin/users`; visit `/` again while already signed in
