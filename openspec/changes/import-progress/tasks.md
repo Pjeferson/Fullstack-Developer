@@ -88,11 +88,17 @@
 
 ## 6. Full verification
 
-- [ ] 6.1 Run `bin/rails test` (full suite green), `bin/rubocop`, and `bin/brakeman` with no new
+- [x] 6.1 Run `bin/rails test` (full suite green), `bin/rubocop`, and `bin/brakeman` with no new
   offenses
-- [ ] 6.2 Manual smoke test via a running `bin/rails server` (with `bin/jobs` also running, now
-  that development uses `solid_queue`): sign in as admin, upload a CSV large enough to span a
-  couple of batches (stub/lower the batch size the same way the job's own tests do, or use a
-  file with enough rows), open the `show` page, and confirm the counts, status, and progress bar
-  update on their own — via real `solid_cable` delivery, not the `async` adapter — without a
-  manual reload, ending at `completed`
+- [x] 6.2 Manual smoke test via a running `bin/rails server` + `bin/jobs`: signed in as admin
+  (via curl, cookie jar), uploaded a 1200-row CSV (spans 3 batches at the real `BATCH_SIZE`),
+  and — since this sandbox has no browser — subscribed to `SpreadsheetImportChannel` with a
+  small Node script (`@rails/actioncable`, browser-global polyfills, a `ws` transport carrying
+  the session cookie) instead of driving `show.tsx` directly. Received 5 distinct live
+  broadcasts over ~3.5 real seconds (processing → 3 batches → completed) via genuine
+  `solid_cable` polling delivery, not the `async` adapter — confirming the backend-to-browser
+  contract `show.tsx` consumes actually works end-to-end. Along the way, found and fixed a real
+  gap: `config/cache.yml`'s `development:` block was missing `database: cache` (unlike
+  `production:`), so Solid Cache had no role to resolve and crashed on first use
+  (`solid_cache_entries` relation did not exist) — production's `production:` block already had
+  this, development just didn't mirror it in group 1
