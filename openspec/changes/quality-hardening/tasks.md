@@ -35,9 +35,9 @@
 
 ## 5. Document the backend-validation decision
 
-- [ ] 5.1 Draft the README section wording, show it for review before applying (same process as
+- [x] 5.1 Draft the README section wording, show it for review before applying (same process as
   the AI-disclosure section)
-- [ ] 5.2 Apply it to `README.md` once approved
+- [x] 5.2 Apply it to `README.md` once approved
 
 ## 6. Client-side schema validation (Zod)
 

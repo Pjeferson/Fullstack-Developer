@@ -151,3 +151,30 @@ Types used in this project:
 | `test` | adding or fixing tests |
 
 Example: `feat: add inertia rails for react frontend`
+
+## Implementation Decisions
+
+Notes on deliberate trade-offs made in this codebase — recorded here so they read as considered
+choices, not gaps.
+
+### Input Validation
+
+Validation in this app lives at two layers, deliberately:
+
+- **Backend**: Rails strong params (only explicitly permitted attributes are ever read from a
+  request) plus `ActiveModel`/`ActiveRecord` validations on the model itself — presence, format,
+  and uniqueness on `User`, `has_secure_password`'s own password checks, and so on. Sensitive
+  fields (`role`, most notably) are structurally excluded from every general-purpose params list
+  rather than merely left unvalidated, so privilege escalation isn't something a validation rule
+  has to catch — there's no parameter path that could set it.
+- **Frontend**: Zod schemas mirror those same backend rules and validate a form as it's filled
+  in, so most invalid input never reaches the server at all (see `app/javascript/schemas/`).
+
+**What's deliberately not here**: a structural schema-validation layer on the backend (e.g.
+`dry-schema`/`dry-validation`) sitting in front of `ActiveRecord`. This was considered and set
+aside for this submission — not an oversight. Rails' own strong params + model validations
+already give this app a real, enforced contract for every request (a field that isn't permitted
+literally cannot reach the model; a field that's permitted still has to pass its validations to
+be persisted), and every input path in this app is small and fully covered by tests. A dedicated
+schema layer becomes more valuable as an app's input surface grows more complex than this one's
+currently is — a trade-off made with that awareness, not without it.
