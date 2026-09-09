@@ -164,6 +164,28 @@ this file is already being touched for validation.
   branch's stated non-goal (no JS test runner yet); covered by manual verification instead, same
   as every other frontend behavior in this app until Playwright lands.
 
+## Post-Review Increment: refresh the import row on modal close
+
+Noticed during review, not part of the original six items: an import's row in
+`admin/spreadsheet_imports/index.tsx`'s history table kept showing whatever it looked like when
+the page/list loaded (e.g. "Pending"), even right after an admin watched it reach "Completed"
+live inside `ImportProgressModal` — closing the modal left the stale row behind, since the
+modal's live subscription only ever updated its own local state, never the page's `imports`.
+
+**Local patch on close, not a server reload.** `ImportProgressModal`'s `onClose` now hands back
+its last-seen `summary`; the page mirrors `imports` into local state (the same pattern
+`admin/users/index.tsx` already uses for `stats` — resynced via a `useEffect` whenever the real
+`imports` prop changes) and patches just the closed row with that summary. Rejected: reloading
+`imports` from the server on close (`router.reload({ only: ['imports'] })`). `InertiaRails.scroll`
+marks this prop `merge: true` unconditionally (see `ScrollProp#configure_merge_intent` — every
+response is treated as `append` unless the request explicitly signals `prepend`), so a bare
+reload would append the fetched page-1 rows on top of whatever's already loaded instead of
+replacing them, visibly duplicating rows. Inertia v2 does have a `reset: string[]` visit option
+for exactly this ("refetch and replace instead of merge"), but using it would also snap the
+infinite-scroll list back to its first page, discarding any depth an admin had already scrolled
+to — an acceptable cost for some apps, but avoidable here entirely by not calling the server at
+all, since the modal already held the answer.
+
 ## Migration Plan
 
 No schema/data migrations. All changes are additive tooling (SimpleCov, Zod), refactors with

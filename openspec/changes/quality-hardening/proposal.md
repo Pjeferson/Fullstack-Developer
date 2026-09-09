@@ -30,6 +30,10 @@ frontend component.
   which is also de-duplicated onto `UserForm` in the same change instead of hand-rolling its own
   copy of the same two fields).
 - Removes `components/ui/Select.tsx` — confirmed unused (0 references anywhere in the app).
+- **Added on review**: fixes a real gap noticed while testing the branch — an import's row in
+  the admin history table stayed stale after its live-progress modal (watched all the way to
+  completion) was closed. Fixed with a local state patch, not a server reload — see design.md's
+  "Post-Review Increment" for why a reload was rejected.
 
 Out of scope: closing the coverage gap itself, a JS test runner for the new validation code
 (Playwright remains the next branch), and any change to what the backend actually accepts or

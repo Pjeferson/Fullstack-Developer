@@ -65,3 +65,19 @@
   flat attachment-query count (checked via Rails log); registration/login/password/profile forms
   show inline errors as fields are blurred and block submission until fixed; a server-only error
   (duplicate email) still appears correctly after submitting
+
+## 8. Post-review increment: refresh the import row on modal close
+
+- [x] 8.1 Fix a real gap noticed during review: an import's row in the history table kept
+  showing whatever it looked like when the page/list loaded (e.g. "Pending"), even after an
+  admin watched it reach "Completed" live inside `ImportProgressModal`, closing the modal left
+  the stale row behind
+- [x] 8.2 `ImportProgressModal`'s `onClose` now hands back its last-seen `summary`;
+  `admin/spreadsheet_imports/index.tsx` mirrors `imports` into local state (same pattern
+  `admin/users/index.tsx` already uses for `stats`) and patches just the closed row with it - no
+  server round-trip, since `InertiaRails.scroll`'s merge semantics would treat a plain reload of
+  `imports` as another page to append (not a replacement) and would also reset the
+  infinite-scroll list back to its first page
+- [x] 8.3 Verified via a real browser with a Solid Queue worker running: uploaded a CSV, watched
+  the modal reach "Completed" live, closed it, confirmed the row read "Completed 2/2"
+  immediately with no network request
