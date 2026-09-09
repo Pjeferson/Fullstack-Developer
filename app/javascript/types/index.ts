@@ -26,3 +26,23 @@ export type UserProfile = {
   avatar_processing: boolean
   avatar_error: string | null
 }
+
+// Matches Admin::UsersController#users_json — the admin user list only. profile_json itself
+// (shared with the edit form and the self-service profile page) doesn't carry timestamps.
+export type AdminUserListItem = UserProfile & {
+  created_at: string
+  updated_at: string
+}
+
+export type SpreadsheetImportStatus = 'pending' | 'processing' | 'completed' | 'failed'
+
+// Matches Admin::SpreadsheetImportsController#import_json. total_rows is null until the job
+// has parsed the file and knows how many rows to expect.
+export type SpreadsheetImportSummary = {
+  id: number
+  status: SpreadsheetImportStatus
+  total_rows: number | null
+  processed_rows: number
+  success_count: number
+  error_count: number
+}

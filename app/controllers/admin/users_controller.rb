@@ -57,8 +57,11 @@ module Admin
         params.permit(:avatar_image, :avatar_image_url)
       end
 
+      # Listing-only fields (created_at/updated_at) are merged on top of profile_json here
+      # rather than added to profile_json itself, since profile_json is shared with the edit
+      # form and the self-service profile page, where those timestamps aren't shown.
       def users_json
-        User.order(:email_address).map(&:profile_json)
+        User.order(id: :desc).map { |user| user.profile_json.merge(created_at: user.created_at, updated_at: user.updated_at) }
       end
   end
 end

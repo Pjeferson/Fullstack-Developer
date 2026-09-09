@@ -3,16 +3,20 @@ import { ReactNode } from 'react'
 
 import AdminLayout from '@/layouts/AdminLayout'
 import RoleBadge from '@/components/RoleBadge'
-import { UserProfile } from '@/types'
+import { AdminUserListItem } from '@/types'
 
-export default function AdminUsersIndex({ users }: { users: UserProfile[] }) {
-  function handleDelete(user: UserProfile) {
+function formatDate(value: string) {
+  return new Date(value).toLocaleDateString()
+}
+
+export default function AdminUsersIndex({ users }: { users: AdminUserListItem[] }) {
+  function handleDelete(user: AdminUserListItem) {
     router.delete(`/admin/users/${user.id}`, {
       onBefore: () => confirm(`Delete ${user.email_address}? This cannot be undone.`),
     })
   }
 
-  function handleToggleRole(user: UserProfile) {
+  function handleToggleRole(user: AdminUserListItem) {
     const nextRole = user.role === 'admin' ? 'default' : 'admin'
     router.patch(`/admin/users/${user.id}/role`, { role: nextRole })
   }
@@ -35,6 +39,8 @@ export default function AdminUsersIndex({ users }: { users: UserProfile[] }) {
             <th className="py-2 pr-4">Email</th>
             <th className="py-2 pr-4">Role</th>
             <th className="py-2 pr-4">Avatar</th>
+            <th className="py-2 pr-4">Created</th>
+            <th className="py-2 pr-4">Updated</th>
             <th className="py-2" />
           </tr>
         </thead>
@@ -55,6 +61,8 @@ export default function AdminUsersIndex({ users }: { users: UserProfile[] }) {
                       ? 'Set'
                       : '—'}
               </td>
+              <td className="py-2 pr-4 text-gray-500 whitespace-nowrap">{formatDate(user.created_at)}</td>
+              <td className="py-2 pr-4 text-gray-500 whitespace-nowrap">{formatDate(user.updated_at)}</td>
               <td className="py-2 text-right whitespace-nowrap">
                 <button type="button" onClick={() => handleToggleRole(user)} className="underline mr-4">
                   {user.role === 'admin' ? 'Demote' : 'Promote'}

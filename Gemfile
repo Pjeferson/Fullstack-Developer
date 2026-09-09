@@ -71,3 +71,9 @@ gem "inertia_rails-contrib", "~> 0.6.0"
 gem "json", "~> 2.9"
 
 gem "ssrf_filter", "~> 1.5"
+
+# Ruby 4.0 no longer ships csv as a default gem
+gem "csv"
+
+# Parse XLSX spreadsheets for the admin bulk-import feature
+gem "roo", "~> 2.10"
