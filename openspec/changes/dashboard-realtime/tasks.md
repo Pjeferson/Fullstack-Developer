@@ -54,17 +54,17 @@
 
 ## 5. Dashboard section and paginated list on the frontend
 
-- [ ] 5.1 Add `app/javascript/components/admin/DashboardStats.tsx` (total + per-role counts,
+- [x] 5.1 Add `app/javascript/components/admin/DashboardStats.tsx` (total + per-role counts,
   presentational)
-- [ ] 5.2 Add `app/javascript/components/admin/UserRow.tsx` (one row's fields + existing
+- [x] 5.2 Add `app/javascript/components/admin/UserRow.tsx` (one row's fields + existing
   promote/demote, edit, delete actions, extracted from `admin/users/index.tsx` with behavior
   unchanged) and `app/javascript/components/admin/UsersTable.tsx` (table shell mapping Users to
   `UserRow`)
-- [ ] 5.3 Update `admin/users/index.tsx`: hold `stats` in state seeded from props and updated via
+- [x] 5.3 Update `admin/users/index.tsx`: hold `stats` in state seeded from props and updated via
   `useDashboardStats`, render `<DashboardStats>` above an `<InfiniteScroll data="users" onlyNext>`
   wrapping `<UsersTable>`, confirm the existing promote/demote/edit/delete actions still work
   through the extracted `UserRow`
-- [ ] 5.4 Confirm `npm run check` is clean
+- [x] 5.4 Confirm `npm run check` is clean
 
 ## 6. Full verification
 
