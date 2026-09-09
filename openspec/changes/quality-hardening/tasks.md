@@ -8,11 +8,11 @@
 
 ## 2. Comment sweep
 
-- [ ] 2.1 Sweep `app/` (controllers, models, services, queries, jobs, channels, mailers):
+- [x] 2.1 Sweep `app/` (controllers, models, services, queries, jobs, channels, mailers):
   remove comments that only restate the adjacent code; keep ones explaining a decision,
   trade-off, rejected alternative, or non-obvious constraint
-- [ ] 2.2 Sweep `app/javascript/` (components, pages, hooks, types) the same way
-- [ ] 2.3 Run `bin/rails test` and `npm run check` — both clean (no behavior change expected)
+- [x] 2.2 Sweep `app/javascript/` (components, pages, hooks, types) the same way
+- [x] 2.3 Run `bin/rails test` and `npm run check` — both clean (no behavior change expected)
 
 ## 3. Remove unused component
 

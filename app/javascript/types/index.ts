@@ -36,8 +36,8 @@ export type AdminUserListItem = UserProfile & {
 
 export type SpreadsheetImportStatus = 'pending' | 'processing' | 'completed' | 'failed'
 
-// Matches Admin::SpreadsheetImportsController#import_json. total_rows is null until the job
-// has parsed the file and knows how many rows to expect.
+// Matches SpreadsheetImport#summary_json. total_rows is null until the job has parsed the file
+// and knows how many rows to expect.
 export type SpreadsheetImportSummary = {
   id: number
   status: SpreadsheetImportStatus
