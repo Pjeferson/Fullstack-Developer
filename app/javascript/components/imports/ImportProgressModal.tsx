@@ -8,7 +8,11 @@ import { AdminImportListItem, SpreadsheetImportSummary } from '@/types'
 
 type Props = {
   spreadsheetImport: AdminImportListItem | null // null = closed
-  onClose: () => void
+  // Hands back whatever this modal's live subscription last saw, so the caller can patch that
+  // row in the history list - the row otherwise stays exactly as it was when the page loaded,
+  // even after the admin watches it change live in here. `null` only if the modal never had
+  // anything to show in the first place.
+  onClose: (summary: SpreadsheetImportSummary | null) => void
 }
 
 // Replaces the old dedicated admin/spreadsheet_imports/show.tsx page - opened from a row in the
@@ -37,7 +41,11 @@ export default function ImportProgressModal({ spreadsheetImport, onClose }: Prop
   const progressPercent = total_rows ? Math.min(100, Math.round((processed_rows / total_rows) * 100)) : 0
 
   return (
-    <Modal open={spreadsheetImport !== null} onClose={onClose} title={spreadsheetImport?.filename ?? 'Import status'}>
+    <Modal
+      open={spreadsheetImport !== null}
+      onClose={() => onClose(summary)}
+      title={spreadsheetImport?.filename ?? 'Import status'}
+    >
       <div className="mb-4">
         <ImportStatusBadge status={status} />
       </div>
