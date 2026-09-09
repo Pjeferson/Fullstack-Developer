@@ -31,17 +31,17 @@
 
 ## 3. Frontend: shared AuthLayout and rebuilt auth pages
 
-- [ ] 3.1 Add `components/layout/AuthLayout.tsx` (brand header matching `Sidebar`'s + centered
+- [x] 3.1 Add `components/layout/AuthLayout.tsx` (brand header matching `Sidebar`'s + centered
   `ui/Card`)
-- [ ] 3.2 Rewrite `pages/sessions/new.tsx` onto `ui/Input`/`ui/Button`, import `FlashData` from
+- [x] 3.2 Rewrite `pages/sessions/new.tsx` onto `ui/Input`/`ui/Button`, import `FlashData` from
   `@/types` instead of an inline type, add a "Don't have an account? Sign up" link to
   `/registration/new`, `.layout = AuthLayout`
-- [ ] 3.3 Rewrite `pages/passwords/new.tsx` and `pages/passwords/edit.tsx` the same way (fields
+- [x] 3.3 Rewrite `pages/passwords/new.tsx` and `pages/passwords/edit.tsx` the same way (fields
   only — no behavior change), `.layout = AuthLayout`
-- [ ] 3.4 Add `pages/registrations/new.tsx` (full name, email, password — no confirmation field,
+- [x] 3.4 Add `pages/registrations/new.tsx` (full name, email, password — no confirmation field,
   no avatar picker), "Already have an account? Sign in" link to `/session/new`,
   `.layout = AuthLayout`
-- [ ] 3.5 Run `bin/rails test` and `npm run check` — both clean
+- [x] 3.5 Run `bin/rails test` and `npm run check` — both clean
 
 ## 4. Final verification
 
