@@ -14,7 +14,7 @@ export default function SessionsNew() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm">
+    <div className="mx-auto mt-28 w-full max-w-sm px-5">
       <Head title="Sign in" />
 
       <h1 className="text-2xl font-semibold mb-6">Sign in</h1>

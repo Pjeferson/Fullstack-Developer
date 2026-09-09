@@ -34,7 +34,7 @@ export default function ProfilesShow({ user }: { user: UserProfile }) {
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm">
+    <div className="mx-auto mt-28 w-full max-w-sm px-5">
       <Head title="My profile" />
 
       <div className="flex items-center justify-between mb-6 text-sm text-gray-600">
