@@ -25,9 +25,9 @@
 
 ## 2. Mount Action Cable
 
-- [ ] 2.1 Add `mount ActionCable.server => "/cable"` to `config/routes.rb` and verify
+- [x] 2.1 Add `mount ActionCable.server => "/cable"` to `config/routes.rb` and verify
   `bin/rails routes | grep cable` shows it
-- [ ] 2.2 Add `test/channels/application_cable/connection_test.rb` covering
+- [x] 2.2 Add `test/channels/application_cable/connection_test.rb` covering
   `ApplicationCable::Connection`'s existing (unchanged) `current_user` identification: a request
   with a valid signed session cookie connects and identifies `current_user`; a request with no/
   invalid session cookie is rejected

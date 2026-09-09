@@ -11,6 +11,8 @@ Rails.application.routes.draw do
     resources :spreadsheet_imports, only: %i[new create show]
   end
 
+  mount ActionCable.server => "/cable"
+
   # Redirect to localhost from 127.0.0.1 to use same IP address with Vite server
   constraints(host: "127.0.0.1") do
     get "(*path)", to: redirect { |params, req| "#{req.protocol}localhost:#{req.port}/#{params[:path]}" }
