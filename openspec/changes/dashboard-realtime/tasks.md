@@ -68,11 +68,7 @@
 
 ## 6. Full verification
 
-- [ ] 6.1 Run `bin/rails test` (full suite green), `bin/rubocop`, and `bin/brakeman` with no new
+- [x] 6.1 Run `bin/rails test` (full suite green), `bin/rubocop`, and `bin/brakeman` with no new
   offenses
-- [ ] 6.2 Manual smoke test via a running `bin/rails server` + `bin/jobs`: seed enough Users to
-  span multiple pages (or reuse a large CSV like the earlier manual-test file), confirm the
-  dashboard shows correct totals, scrolling loads more Users without a full reload, and inviting/
-  deleting/toggling a role from one browser session updates the stats live in another
-  subscribed session (or via a second `SpreadsheetImportChannel`-style script client, since this
-  sandbox has no browser — see `feature/import-progress`'s verification notes for that approach)
+- [ ] 6.2 Manual smoke test — skipped at the user's request; automated coverage (133 tests) was
+  treated as sufficient for this change
