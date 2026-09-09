@@ -8,21 +8,21 @@
 
 ## 2. Dashboard channel and broadcaster
 
-- [ ] 2.1 Add `app/channels/dashboard_channel.rb` (`subscribed` rejects unless
+- [x] 2.1 Add `app/channels/dashboard_channel.rb` (`subscribed` rejects unless
   `current_user&.admin?`, otherwise `stream_from "dashboard_stats"`) and
   `test/channels/dashboard_channel_test.rb` covering: an admin subscribing is confirmed and
   streaming; a non-admin is rejected
-- [ ] 2.2 Add `app/services/dashboard/stats_broadcaster.rb` (`new.call` —
+- [x] 2.2 Add `app/services/dashboard/stats_broadcaster.rb` (`new.call` —
   `ActionCable.server.broadcast("dashboard_stats", Dashboard::StatsQuery.new.call)`) and
   `test/services/dashboard/stats_broadcaster_test.rb` covering it broadcasts the current stats
   on the `dashboard_stats` stream (`assert_broadcast_on`)
-- [ ] 2.3 Call `Dashboard::StatsBroadcaster.new.call` from `Admin::UsersController#create` (on
+- [x] 2.3 Call `Dashboard::StatsBroadcaster.new.call` from `Admin::UsersController#create` (on
   success), `Admin::UsersController#destroy`, `Admin::Users::RolesController#update` (on
   success), and `ProfilesController#destroy`; extend each controller's existing test file with a
   case asserting the broadcast happens on success (`assert_broadcast_on`) and — for `create`
   and `RolesController#update` — that it does *not* broadcast on a failed/invalid request; also
   add a case to `Admin::UsersControllerTest` confirming `#update` (plain edit) does not broadcast
-- [ ] 2.4 Call `Dashboard::StatsBroadcaster.new.call` from `SpreadsheetImportJob`'s existing
+- [x] 2.4 Call `Dashboard::StatsBroadcaster.new.call` from `SpreadsheetImportJob`'s existing
   `update_and_broadcast!` batch call site (once per batch, alongside the existing
   `Imports::ProgressBroadcaster` call — not a new per-row call), and extend
   `spreadsheet_import_job_test.rb` with a case asserting a `dashboard_stats` broadcast happens

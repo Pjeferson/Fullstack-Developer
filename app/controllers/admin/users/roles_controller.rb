@@ -10,6 +10,7 @@ module Admin
       end
 
       @user.update!(role: role)
+      ::Dashboard::StatsBroadcaster.new.call
       redirect_to admin_users_path, notice: "Role updated."
     end
 

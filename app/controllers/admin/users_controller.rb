@@ -15,6 +15,7 @@ module Admin
 
       if @user.persisted?
         ::Users::AvatarAssigner.new(@user, file: avatar_params[:avatar_image], url: avatar_params[:avatar_image_url]).call
+        ::Dashboard::StatsBroadcaster.new.call
         redirect_to admin_users_path, notice: "User invited."
       else
         redirect_to new_admin_user_path, inertia: { errors: @user.errors }
@@ -39,6 +40,7 @@ module Admin
 
     def destroy
       @user.destroy
+      ::Dashboard::StatsBroadcaster.new.call
       redirect_to admin_users_path, notice: "User deleted."
     end
 

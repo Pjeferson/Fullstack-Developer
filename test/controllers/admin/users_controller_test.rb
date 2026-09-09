@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
+  include ActionCable::TestHelper
+
   setup do
     @admin = users(:admin)
     @user = users(:one)
@@ -57,6 +59,24 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert User.find_by(email_address: "invitee@example.com").present?
   end
 
+  test "inviting a user broadcasts updated dashboard stats" do
+    sign_in_as(@admin)
+
+    messages = capture_broadcasts("dashboard_stats") do
+      post admin_users_path, params: { email_address: "invitee@example.com", full_name: "Invitee" }
+    end
+
+    assert_equal [ as_broadcast_json(Dashboard::StatsQuery.new.call) ], messages
+  end
+
+  test "a failed invite does not broadcast dashboard stats" do
+    sign_in_as(@admin)
+
+    assert_no_broadcasts("dashboard_stats") do
+      post admin_users_path, params: { email_address: "", full_name: "" }
+    end
+  end
+
   test "role param is ignored on create" do
     sign_in_as(@admin)
 
@@ -92,6 +112,14 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated Name", @user.reload.full_name
   end
 
+  test "a plain edit does not broadcast dashboard stats" do
+    sign_in_as(@admin)
+
+    assert_no_broadcasts("dashboard_stats") do
+      patch admin_user_path(@user), params: { email_address: @user.email_address, full_name: "Updated Name" }
+    end
+  end
+
   test "role param is ignored on update" do
     sign_in_as(@admin)
 
@@ -116,5 +144,15 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_difference "User.count", -1 do
       delete admin_user_path(@admin)
     end
+  end
+
+  test "deleting a user broadcasts updated dashboard stats" do
+    sign_in_as(@admin)
+
+    messages = capture_broadcasts("dashboard_stats") do
+      delete admin_user_path(@user)
+    end
+
+    assert_equal [ as_broadcast_json(Dashboard::StatsQuery.new.call) ], messages
   end
 end
