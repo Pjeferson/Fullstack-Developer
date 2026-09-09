@@ -33,6 +33,9 @@
 # Ignore key files for decrypting credentials and more.
 /config/*.key
 
+# SimpleCov coverage reports
+/coverage
+
 
 /app/assets/builds/*
 !/app/assets/builds/.keep

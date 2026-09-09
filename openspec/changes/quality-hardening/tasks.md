@@ -1,9 +1,9 @@
 ## 1. Coverage measurement
 
-- [ ] 1.1 Add `gem "simplecov", require: false` to the `:test` group in `Gemfile`;
+- [x] 1.1 Add `gem "simplecov", require: false` to the `:test` group in `Gemfile`;
   `require "simplecov"; SimpleCov.start "rails"` as the first lines of `test/test_helper.rb`
   (before `require_relative "../config/environment"`); confirm `/coverage/` is gitignored
-- [ ] 1.2 Run `bin/rails test`, report the resulting line-coverage percentage in chat (no attempt
+- [x] 1.2 Run `bin/rails test`, report the resulting line-coverage percentage in chat (no attempt
   to close gaps this branch)
 
 ## 2. Comment sweep

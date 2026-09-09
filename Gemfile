@@ -62,6 +62,9 @@ group :test do
 
   # Minitest 6 split Object#stub out of the core gem
   gem "minitest-mock"
+
+  # Test coverage reporting [https://github.com/simplecov-ruby/simplecov]
+  gem "simplecov", require: false
 end
 
 gem "vite_rails", "~> 3.11"
