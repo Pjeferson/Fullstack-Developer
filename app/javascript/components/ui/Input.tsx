@@ -2,7 +2,10 @@ import { InputHTMLAttributes } from 'react'
 
 type Props = InputHTMLAttributes<HTMLInputElement> & {
   label: string
-  error?: string
+  // string[], not string - Inertia errors carry one array of messages per field in this app
+  // (see types/globals.d.ts's InertiaConfig override), and every other page already renders
+  // that array directly rather than picking a single message.
+  error?: string[]
 }
 
 // A labeled input with an inline error message - the shape every form field in the app already

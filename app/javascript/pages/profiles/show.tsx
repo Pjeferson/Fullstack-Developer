@@ -2,7 +2,7 @@ import { Head, router, useForm } from '@inertiajs/react'
 import { FormEvent } from 'react'
 
 import AvatarField from '@/components/AvatarField'
-import RoleBadge from '@/components/RoleBadge'
+import RoleBadge from '@/components/users/RoleBadge'
 import { UserProfile } from '@/types'
 
 export default function ProfilesShow({ user }: { user: UserProfile }) {

@@ -4,7 +4,7 @@ Rails.application.routes.draw do
   resource :profile, only: %i[show update destroy]
 
   namespace :admin do
-    resources :users, except: %i[show] do
+    resources :users, only: %i[index create update destroy] do
       resource :role, only: :update, controller: "users/roles"
     end
 

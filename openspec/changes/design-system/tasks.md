@@ -67,27 +67,27 @@
 
 ## 7. Rebuild the admin Users page
 
-- [ ] 7.1 Add `components/users/UserStats.tsx` (from `components/admin/DashboardStats.tsx`),
+- [x] 7.1 Add `components/users/UserStats.tsx` (from `components/admin/DashboardStats.tsx`),
   `RoleBadge.tsx` (moved, now a thin `ui/Badge` wrapper)
-- [ ] 7.2 Add `components/users/UserRow.tsx` and `UserCard.tsx` (table row / mobile card, same
+- [x] 7.2 Add `components/users/UserRow.tsx` and `UserCard.tsx` (table row / mobile card, same
   props, from `components/admin/UserRow.tsx`), `UserTable.tsx` (renders both, toggled via
   `hidden md:table` / `md:hidden`)
-- [ ] 7.3 Add `components/users/UserForm.tsx` (fields shared by create/edit, from
+- [x] 7.3 Add `components/users/UserForm.tsx` (fields shared by create/edit, from
   `pages/admin/users/{new,edit}.tsx`) and `UserModal.tsx` (wraps `UserForm` in `ui/Modal` for
   both create and edit modes; edit mode seeds from the row's already-loaded data)
-- [ ] 7.4 Add `components/users/DeleteUserDialog.tsx` (confirmation dialog on `ui/Modal`,
+- [x] 7.4 Add `components/users/DeleteUserDialog.tsx` (confirmation dialog on `ui/Modal`,
   replacing the native `confirm()` in the old `UserRow`)
-- [ ] 7.5 Rewrite `pages/admin/users/index.tsx`: render `UserStats`, `UserTable` (wrapped in the
+- [x] 7.5 Rewrite `pages/admin/users/index.tsx`: render `UserStats`, `UserTable` (wrapped in the
   existing `InfiniteScroll`), and the create/edit/delete modals as local state, not routes
-- [ ] 7.6 Remove `Admin::UsersController#new`/`#edit`; make `#create`/`#update` always
+- [x] 7.6 Remove `Admin::UsersController#new`/`#edit`; make `#create`/`#update` always
   `redirect_to admin_users_path` (success or failure); update `config/routes.rb` to
   `resources :users, only: %i[index create update destroy]`
-- [ ] 7.7 Delete `pages/admin/users/{new,edit}.tsx` and
+- [x] 7.7 Delete `pages/admin/users/{new,edit}.tsx` and
   `components/admin/{DashboardStats,UsersTable,UserRow}.tsx`
-- [ ] 7.8 Update `test/controllers/admin/users_controller_test.rb`: remove `new`/`edit` cases,
+- [x] 7.8 Update `test/controllers/admin/users_controller_test.rb`: remove `new`/`edit` cases,
   update create/update failure-path assertions to redirect to the index (not a dedicated
   new/edit path)
-- [ ] 7.9 Run `bin/rails test` and `npm run check` — both clean
+- [x] 7.9 Run `bin/rails test` and `npm run check` — both clean
 
 ## 8. Rebuild the admin Imports page
 
