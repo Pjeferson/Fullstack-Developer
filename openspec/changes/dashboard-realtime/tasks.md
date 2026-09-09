@@ -1,7 +1,7 @@
 ## 1. Role index and stats query
 
-- [ ] 1.1 Add migration `add_index :users, :role` and run `bin/rails db:migrate`
-- [ ] 1.2 Add `app/queries/dashboard/stats_query.rb` (`#call` returns `{ total:, by_role: }`,
+- [x] 1.1 Add migration `add_index :users, :role` and run `bin/rails db:migrate`
+- [x] 1.2 Add `app/queries/dashboard/stats_query.rb` (`#call` returns `{ total:, by_role: }`,
   `by_role` built from `User.roles.keys` so a zero-count role still appears) and
   `test/queries/dashboard/stats_query_test.rb` covering: correct total and per-role counts; a
   role with zero Users is present in `by_role` as `0`, not omitted
