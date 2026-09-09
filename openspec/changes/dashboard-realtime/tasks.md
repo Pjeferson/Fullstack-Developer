@@ -30,14 +30,14 @@
 
 ## 3. Paginated User list
 
-- [ ] 3.1 Add `app/queries/admin/users_query.rb` (`new(before_id:).records`/`.metadata` — cursor
+- [x] 3.1 Add `app/queries/admin/users_query.rb` (`new(before_id:).records`/`.metadata` — cursor
   pagination via `WHERE id < :before_id`, `PER_PAGE = 25`, fetch `PER_PAGE + 1` to detect more
   without a separate count; see design.md) and `test/queries/admin/users_query_test.rb`
   covering: first page returns the 25 newest Users; `metadata.next_page` is the 26th User's id
   when more exist, `nil` when exhausted; passing `before_id` returns the next 25 older than that
   id; a User created after an earlier page was fetched doesn't appear again or shift what a
   later page (fetched with an already-known `before_id`) returns
-- [ ] 3.2 Update `Admin::UsersController#index` to use `Admin::UsersQuery` and
+- [x] 3.2 Update `Admin::UsersController#index` to use `Admin::UsersQuery` and
   `InertiaRails.scroll` for `users`, and add `stats: Dashboard::StatsQuery.new.call` to the
   props; update `test/controllers/admin/users_controller_test.rb`'s list test(s) for the new
   props shape (paginated `users` + `stats`), and add a case requesting a second page via

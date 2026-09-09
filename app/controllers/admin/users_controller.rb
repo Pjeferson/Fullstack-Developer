@@ -3,7 +3,12 @@ module Admin
     before_action :set_user, only: %i[edit update destroy]
 
     def index
-      render inertia: "admin/users/index", props: { users: users_json }
+      query = ::Admin::UsersQuery.new(before_id: params[:before_id])
+
+      render inertia: "admin/users/index", props: {
+        users: InertiaRails.scroll(query.metadata) { users_json(query.records) },
+        stats: ::Dashboard::StatsQuery.new.call
+      }
     end
 
     def new
@@ -62,8 +67,8 @@ module Admin
       # Listing-only fields (created_at/updated_at) are merged on top of profile_json here
       # rather than added to profile_json itself, since profile_json is shared with the edit
       # form and the self-service profile page, where those timestamps aren't shown.
-      def users_json
-        User.order(id: :desc).map { |user| user.profile_json.merge(created_at: user.created_at, updated_at: user.updated_at) }
+      def users_json(users)
+        users.map { |user| user.profile_json.merge(created_at: user.created_at, updated_at: user.updated_at) }
       end
   end
 end

@@ -41,6 +41,29 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the index includes the current dashboard stats" do
+    sign_in_as(@admin)
+    get admin_users_path
+
+    assert_inertia_props { |props| props[:stats] == as_broadcast_json(Dashboard::StatsQuery.new.call) }
+  end
+
+  test "requesting a second page via before_id returns the next batch, not the same one" do
+    31.times { |i| User.create!(email_address: "paginated#{i}@example.com", full_name: "Paginated #{i}", password: "password") }
+
+    sign_in_as(@admin)
+    get admin_users_path
+    first_page_ids = inertia.props[:users].map { |u| u[:id] }
+    before_id = first_page_ids.last
+
+    get admin_users_path, params: { before_id: before_id }
+    second_page_ids = inertia.props[:users].map { |u| u[:id] }
+
+    assert_equal 25, first_page_ids.size
+    assert_empty first_page_ids & second_page_ids
+    assert second_page_ids.all? { |id| id < before_id }
+  end
+
   test "admin can view the new user form" do
     sign_in_as(@admin)
     get new_admin_user_path
