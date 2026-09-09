@@ -16,8 +16,11 @@ export function useValidation<T extends Record<string, unknown>>(schema: z.ZodTy
     if (!result.success) {
       for (const issue of result.error.issues) {
         const field = issue.path[0] as keyof T
-        if (!touched[field]) continue
-        fieldErrors[field] = [ ...(fieldErrors[field] ?? []), issue.message ]
+        if (!touched[field] || fieldErrors[field]) continue // one message per field - a blank
+        // value can fail more than one check at once (e.g. both "can't be blank" and "is
+        // invalid" on an empty email), and Input renders the array with no separator between
+        // messages, so only the first (most relevant) one is kept.
+        fieldErrors[field] = [ issue.message ]
       }
     }
     return fieldErrors
