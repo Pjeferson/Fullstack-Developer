@@ -7,17 +7,17 @@
 
 ## 2. Registration backend
 
-- [ ] 2.1 Add `app/controllers/registrations_controller.rb` (`allow_unauthenticated_access`,
+- [x] 2.1 Add `app/controllers/registrations_controller.rb` (`allow_unauthenticated_access`,
   `rate_limit` on `#create` matching `SessionsController`'s; `#new` redirects an already-
   authenticated visitor via `after_authentication_url`; `#create` builds `User.new(registration_params)`,
   and on success calls `start_new_session_for` + `Dashboard::StatsBroadcaster.new.call` before
   redirecting via `after_authentication_url`, or redirects back to `new_registration_path` with
   `inertia: { errors: }` on failure; `registration_params` permits only `:full_name,
   :email_address, :password` — `role` structurally absent)
-- [ ] 2.2 Add the same authenticated-visitor guard to `SessionsController#new`
-- [ ] 2.3 `config/routes.rb`: add `resource :registration, only: %i[new create]`, change `root`
+- [x] 2.2 Add the same authenticated-visitor guard to `SessionsController#new`
+- [x] 2.3 `config/routes.rb`: add `resource :registration, only: %i[new create]`, change `root`
   to `"sessions#new"`
-- [ ] 2.4 Add `test/controllers/registrations_controller_test.rb`: guest can view `new`; an
+- [x] 2.4 Add `test/controllers/registrations_controller_test.rb`: guest can view `new`; an
   authenticated User visiting `new` is redirected to `after_authentication_url`; valid signup
   creates a `default`-role User, signs them in (cookie set), redirects to `/profile`; a `role`
   param submitted alongside is ignored (structural-absence regression test, mirroring
@@ -25,9 +25,9 @@
   each redirect back with errors and create no User; successful registration broadcasts
   `dashboard_stats` (`assert_broadcast_on`, mirroring `admin/users_controller_test.rb`'s existing
   cases), a failed one does not
-- [ ] 2.5 Add a case to `test/controllers/sessions_controller_test.rb` for the new
+- [x] 2.5 Add a case to `test/controllers/sessions_controller_test.rb` for the new
   authenticated-redirect guard on `#new`
-- [ ] 2.6 Run `bin/rails test` — full suite green
+- [x] 2.6 Run `bin/rails test` — full suite green
 
 ## 3. Frontend: shared AuthLayout and rebuilt auth pages
 
