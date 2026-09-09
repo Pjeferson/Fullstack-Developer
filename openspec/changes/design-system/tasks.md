@@ -114,3 +114,26 @@
   delete a User via modal; run a spreadsheet import, confirm it appears in the history and its
   progress modal opens and live-updates; verify (console/db) that an imported User's
   `spreadsheet_import_id` is set
+
+## 10. Post-verification fixes (found via real-browser review after 9.2)
+
+- [x] 10.1 Fix `AppShell`'s sidebar growing to match infinite-scrolled content height instead of
+  staying pinned to the viewport (`min-h-screen` → `h-screen overflow-hidden`, scrolling scoped
+  to `<main>`) - reported as the sidebar's own bottom (My profile/Sign out) becoming unreachable
+  on a long User/import list
+- [x] 10.2 Fix `application.html.erb`'s root `<main class="container mx-auto mt-28 px-5 flex">`
+  (present since the initial project-setup commit, predating this change) silently capping every
+  page's width and pushing it down 112px - broke `AppShell`'s full-viewport model, reported as
+  page content "floating" with unused screen space on a large display. `<main>` is now bare;
+  `sessions/new.tsx`/`passwords/{new,edit}.tsx`/`profiles/show.tsx` (none of which have their own
+  layout) carry the old `mt-28 px-5` on their own wrapper instead, so their look is unchanged
+- [x] 10.3 Bring `profiles/show.tsx` into the design system (out of the original proposal's
+  scope, added on review): `AppShell`/`Card`/`Input`/`Button`/`Avatar`, and a new generic
+  `components/ui/ConfirmDialog.tsx` (the destructive-action confirmation pattern
+  `DeleteUserDialog` established, generalized) replacing the native `confirm()` for self-service
+  account deletion. `Sidebar` becomes role-aware (`current_user.role === 'admin'` gates the
+  Users/Imports nav items and decides the brand link's target) since it's now shared by every
+  authenticated page, not just `/admin/*`
+- [x] 10.4 Re-run `bin/rails test`, `npm run check`, `bin/rubocop` — all clean; manually verified
+  (screenshots, no console errors) an admin's profile shows the full nav and a regular User's
+  shows only My profile/Sign out

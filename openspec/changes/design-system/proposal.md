@@ -36,6 +36,16 @@ component shape.
   No backfill/data reset needed: existing Users simply get `NULL`.
 - Formalizes a destructive-action confirmation dialog (replacing the native `confirm()` used for
   User deletion today) as a shared, reusable `ui/Modal`-based component.
+- **Added on review, after the rest of this change was verified**: the shared navigation shell
+  (`AppShell`) and design tokens extend to the self-service profile page (`/profile`), not just
+  the admin area — its `Sidebar` becomes role-aware (an admin sees Users/Imports; a regular User
+  sees only their own profile and sign-out), and profile's own account deletion gets the same
+  confirmation-dialog treatment via a new generic `ui/ConfirmDialog`. Two layout bugs surfaced by
+  reviewing a real browser are fixed alongside this: the sidebar growing to match an
+  infinite-scrolled list's height instead of staying pinned to the viewport, and a pre-existing
+  root-layout wrapper (predating this change) that silently capped every page's width and pushed
+  it down 112px, fighting `AppShell`'s full-viewport model. See design.md's "Post-Verification
+  Fixes".
 
 Out of scope for this change: system/Playwright tests (the next branch), the still-missing AI
 disclosure section in the README, and Visitor self-registration — all raised in the diagnostic
@@ -45,7 +55,8 @@ that prompted this change, but not part of it.
 
 ### New Capabilities
 - `design-system`: the shared visual language (design tokens, reusable UI component
-  conventions) and the admin area's responsive behavior across desktop/tablet/mobile viewports.
+  conventions) and the authenticated app's responsive behavior across desktop/tablet/mobile
+  viewports — the admin area and the self-service profile page alike.
 
 ### Modified Capabilities
 - `admin-user-management`: the "Invite a User", "Edit a User", and "Delete a User" requirements
@@ -57,6 +68,8 @@ that prompted this change, but not part of it.
   import's status page" to "an import's progress modal, opened from the import history"; two
   requirements are added — an admin can see a paginated history of past imports, and every User
   a spreadsheet import creates is associated with that import.
+- `user-profile`: "Delete own profile" gains the same explicit confirmation-dialog scenario as
+  admin User deletion (previously a native `confirm()`, never spec'd).
 
 ## Impact
 
@@ -70,6 +83,9 @@ that prompted this change, but not part of it.
   `components/imports/*`; `pages/admin/users/index.tsx` rewritten; new
   `pages/admin/spreadsheet_imports/index.tsx`; `pages/admin/users/{new,edit}.tsx`,
   `pages/admin/spreadsheet_imports/{new,show}.tsx`, and `layouts/AdminLayout.tsx` deleted.
+  `pages/profiles/show.tsx` rewritten onto `AppShell`/`ui/*`; `components/layout/Sidebar.tsx`
+  gains role-awareness; `app/views/layouts/application.html.erb`'s `<main>` wrapper simplified
+  (see design.md's "Post-Verification Fixes").
 - **New dependencies**: `lucide-react` (icon set), `@headlessui/react` (accessible Modal/drawer/
   Select primitives — focus trap, ESC-to-close, ARIA semantics).
 - **Tests**: `test/controllers/admin/{users_controller,spreadsheet_imports_controller}_test.rb`

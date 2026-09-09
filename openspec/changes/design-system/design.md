@@ -223,6 +223,32 @@ attributes are assembled.
   change (see above) — the data is captured now specifically so a future change can display it
   without another migration; deferring the UI, not the traceability, was the deliberate split.
 
+## Post-Verification Fixes
+
+Found by the admin reviewing a real browser after task 9.2's smoke test, not by any automated
+check — worth recording since neither was a design decision, both were bugs in what this change
+shipped (or, for the second, exposed):
+
+- **`AppShell`'s sidebar grew with infinite-scrolled content instead of staying pinned to the
+  viewport.** `min-h-screen` on the shell's root, no scroll scoping on `<main>` — a flex row's
+  items stretch to the tallest sibling by default, so the sidebar's height tracked the (unbounded,
+  infinite-scroll-grown) main content's height, pushing its own bottom (My profile/Sign out) out
+  of reach on a long list. Fixed: `h-screen overflow-hidden` on the shell, `overflow-y-auto` only
+  on `<main>` — the standard app-shell pattern (chrome pinned, content region scrolls).
+- **The root layout's `<main>` silently capped every page's size.**
+  `app/views/layouts/application.html.erb`'s `<main class="container mx-auto mt-28 px-5 flex">`
+  predates this change (present since the initial `chore: project setup` commit) and was harmless
+  for the old small centered auth forms, but it caps width (`container`) and pushes content down
+  112px (`mt-28`) — directly fighting `AppShell`'s full-viewport `h-screen` model. Reported as the
+  page "floating" with unused screen space on a large display; confirmed via screenshot and a
+  bounding-box check matching the reported viewport size exactly after the fix. `<main>` is now
+  bare; the handful of pages that relied on the old wrapper for spacing (none of which have their
+  own layout — sessions/passwords/profile) now carry `mt-28 px-5` on their own wrapper instead.
+
+Both are now fixed on this branch (see tasks.md §10); neither required a behavior change to any
+spec, since the intended behavior (a full-viewport, always-reachable shell) was already what the
+design called for — these were implementation bugs preventing it, not scope changes.
+
 ## Migration Plan
 
 One additive migration (`add_reference :users, :spreadsheet_import, foreign_key: true`, nullable)
