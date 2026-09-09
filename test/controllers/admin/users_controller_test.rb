@@ -1,6 +1,8 @@
 require "test_helper"
 
 class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
+  include ActionCable::TestHelper
+
   setup do
     @admin = users(:admin)
     @user = users(:one)
@@ -39,6 +41,29 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "the index includes the current dashboard stats" do
+    sign_in_as(@admin)
+    get admin_users_path
+
+    assert_inertia_props { |props| props[:stats] == as_broadcast_json(Dashboard::StatsQuery.new.call) }
+  end
+
+  test "requesting a second page via before_id returns the next batch, not the same one" do
+    31.times { |i| User.create!(email_address: "paginated#{i}@example.com", full_name: "Paginated #{i}", password: "password") }
+
+    sign_in_as(@admin)
+    get admin_users_path
+    first_page_ids = inertia.props[:users].map { |u| u[:id] }
+    before_id = first_page_ids.last
+
+    get admin_users_path, params: { before_id: before_id }
+    second_page_ids = inertia.props[:users].map { |u| u[:id] }
+
+    assert_equal 25, first_page_ids.size
+    assert_empty first_page_ids & second_page_ids
+    assert second_page_ids.all? { |id| id < before_id }
+  end
+
   test "admin can view the new user form" do
     sign_in_as(@admin)
     get new_admin_user_path
@@ -55,6 +80,24 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to admin_users_path
     assert User.find_by(email_address: "invitee@example.com").present?
+  end
+
+  test "inviting a user broadcasts updated dashboard stats" do
+    sign_in_as(@admin)
+
+    messages = capture_broadcasts("dashboard_stats") do
+      post admin_users_path, params: { email_address: "invitee@example.com", full_name: "Invitee" }
+    end
+
+    assert_equal [ as_broadcast_json(Dashboard::StatsQuery.new.call) ], messages
+  end
+
+  test "a failed invite does not broadcast dashboard stats" do
+    sign_in_as(@admin)
+
+    assert_no_broadcasts("dashboard_stats") do
+      post admin_users_path, params: { email_address: "", full_name: "" }
+    end
   end
 
   test "role param is ignored on create" do
@@ -92,6 +135,14 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_equal "Updated Name", @user.reload.full_name
   end
 
+  test "a plain edit does not broadcast dashboard stats" do
+    sign_in_as(@admin)
+
+    assert_no_broadcasts("dashboard_stats") do
+      patch admin_user_path(@user), params: { email_address: @user.email_address, full_name: "Updated Name" }
+    end
+  end
+
   test "role param is ignored on update" do
     sign_in_as(@admin)
 
@@ -116,5 +167,15 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_difference "User.count", -1 do
       delete admin_user_path(@admin)
     end
+  end
+
+  test "deleting a user broadcasts updated dashboard stats" do
+    sign_in_as(@admin)
+
+    messages = capture_broadcasts("dashboard_stats") do
+      delete admin_user_path(@user)
+    end
+
+    assert_equal [ as_broadcast_json(Dashboard::StatsQuery.new.call) ], messages
   end
 end

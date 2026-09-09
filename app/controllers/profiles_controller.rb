@@ -22,6 +22,7 @@ class ProfilesController < InertiaController
     user = Current.user
     terminate_session
     user.destroy
+    ::Dashboard::StatsBroadcaster.new.call
     redirect_to new_session_path, notice: "Your account has been deleted."
   end
 

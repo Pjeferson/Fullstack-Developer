@@ -1,25 +1,22 @@
-import { Head, Link, router } from '@inertiajs/react'
-import { ReactNode } from 'react'
+import { Head, Link, InfiniteScroll } from '@inertiajs/react'
+import { ReactNode, useEffect, useState } from 'react'
 
 import AdminLayout from '@/layouts/AdminLayout'
-import RoleBadge from '@/components/RoleBadge'
-import { AdminUserListItem } from '@/types'
+import DashboardStats from '@/components/admin/DashboardStats'
+import UsersTable from '@/components/admin/UsersTable'
+import { useDashboardStats } from '@/hooks/useDashboardStats'
+import { AdminUserListItem, DashboardStats as DashboardStatsData } from '@/types'
 
-function formatDate(value: string) {
-  return new Date(value).toLocaleDateString()
-}
+export default function AdminUsersIndex({ users, stats: initialStats }: { users: AdminUserListItem[]; stats: DashboardStatsData }) {
+  const [ stats, setStats ] = useState(initialStats)
 
-export default function AdminUsersIndex({ users }: { users: AdminUserListItem[] }) {
-  function handleDelete(user: AdminUserListItem) {
-    router.delete(`/admin/users/${user.id}`, {
-      onBefore: () => confirm(`Delete ${user.email_address}? This cannot be undone.`),
-    })
-  }
+  // Keeps a full Inertia reload's fresh `stats` prop in sync with state — live updates below
+  // never go through this path.
+  useEffect(() => {
+    setStats(initialStats)
+  }, [ initialStats ])
 
-  function handleToggleRole(user: AdminUserListItem) {
-    const nextRole = user.role === 'admin' ? 'default' : 'admin'
-    router.patch(`/admin/users/${user.id}/role`, { role: nextRole })
-  }
+  useDashboardStats(setStats)
 
   return (
     <>
@@ -32,52 +29,11 @@ export default function AdminUsersIndex({ users }: { users: AdminUserListItem[] 
         </Link>
       </div>
 
-      <table className="w-full text-left text-sm">
-        <thead>
-          <tr className="border-b border-gray-200 text-gray-500">
-            <th className="py-2 pr-4">User</th>
-            <th className="py-2 pr-4">Email</th>
-            <th className="py-2 pr-4">Role</th>
-            <th className="py-2 pr-4">Avatar</th>
-            <th className="py-2 pr-4">Created</th>
-            <th className="py-2 pr-4">Updated</th>
-            <th className="py-2" />
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user) => (
-            <tr key={user.id} className="border-b border-gray-100">
-              <td className="py-2 pr-4">{user.full_name}</td>
-              <td className="py-2 pr-4">{user.email_address}</td>
-              <td className="py-2 pr-4">
-                <RoleBadge role={user.role} />
-              </td>
-              <td className="py-2 pr-4 text-gray-500">
-                {user.avatar_processing
-                  ? 'Processing…'
-                  : user.avatar_error
-                    ? 'Failed'
-                    : user.avatar_url
-                      ? 'Set'
-                      : '—'}
-              </td>
-              <td className="py-2 pr-4 text-gray-500 whitespace-nowrap">{formatDate(user.created_at)}</td>
-              <td className="py-2 pr-4 text-gray-500 whitespace-nowrap">{formatDate(user.updated_at)}</td>
-              <td className="py-2 text-right whitespace-nowrap">
-                <button type="button" onClick={() => handleToggleRole(user)} className="underline mr-4">
-                  {user.role === 'admin' ? 'Demote' : 'Promote'}
-                </button>
-                <Link href={`/admin/users/${user.id}/edit`} className="underline mr-4">
-                  Edit
-                </Link>
-                <button type="button" onClick={() => handleDelete(user)} className="underline text-red-600">
-                  Delete
-                </button>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+      <DashboardStats stats={stats} />
+
+      <InfiniteScroll data="users" onlyNext>
+        <UsersTable users={users} />
+      </InfiniteScroll>
     </>
   )
 }

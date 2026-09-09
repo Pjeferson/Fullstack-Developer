@@ -29,6 +29,20 @@ class SpreadsheetImportJobTest < ActiveJob::TestCase
     end
   end
 
+  test "broadcasts dashboard stats once per batch during a run" do
+    assert_broadcasts("dashboard_stats", 1) do # 2 rows, default batch size => 1 batch
+      SpreadsheetImportJob.perform_now(@import.id)
+    end
+  end
+
+  test "broadcasts dashboard stats once per batch across multiple batches" do
+    job = SpreadsheetImportJob.new(@import.id)
+
+    assert_broadcasts("dashboard_stats", 2) do # 2 rows, batch size 1 => 2 batches
+      with_batch_size(job, 1) { job.perform_now }
+    end
+  end
+
   test "a failure partway through leaves the checkpoint at the last completed batch and marks the import failed" do
     with_failing_second_batch do
       job = SpreadsheetImportJob.new(@import.id)

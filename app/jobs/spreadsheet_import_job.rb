@@ -60,6 +60,7 @@ class SpreadsheetImportJob < ApplicationJob
           error_count: import.error_count + result.failed_rows.size,
           last_completed_batch: batch_index + 1
         )
+        Dashboard::StatsBroadcaster.new.call
       end
     end
 

@@ -46,3 +46,10 @@ export type SpreadsheetImportSummary = {
   success_count: number
   error_count: number
 }
+
+// Matches Dashboard::StatsQuery#call. by_role always carries every Role key, even at 0 — see
+// StatsQuery's comment for why.
+export type DashboardStats = {
+  total: number
+  by_role: Record<Role, number>
+}

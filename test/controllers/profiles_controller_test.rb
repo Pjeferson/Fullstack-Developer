@@ -2,6 +2,7 @@ require "test_helper"
 
 class ProfilesControllerTest < ActionDispatch::IntegrationTest
   include ActiveJob::TestHelper
+  include ActionCable::TestHelper
 
   setup { @user = users(:one) }
 
@@ -102,6 +103,16 @@ class ProfilesControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to new_session_path
     assert_empty cookies[:session_id]
+  end
+
+  test "deleting the account broadcasts updated dashboard stats" do
+    sign_in_as(@user)
+
+    messages = capture_broadcasts("dashboard_stats") do
+      delete profile_path
+    end
+
+    assert_equal [ as_broadcast_json(Dashboard::StatsQuery.new.call) ], messages
   end
 
   test "deleting the account also removes the session record and the avatar attachment" do

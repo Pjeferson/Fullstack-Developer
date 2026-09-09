@@ -14,5 +14,13 @@ module ActiveSupport
     fixtures :all
 
     # Add more helper methods to be used by all tests here...
+
+    # Round-trips a broadcast payload through JSON the same way
+    # ActionCable::TestHelper's own assertions do, so a Hash with symbol keys
+    # (e.g. Dashboard::StatsQuery#call) can be compared against a captured,
+    # already-JSON-decoded broadcast message.
+    def as_broadcast_json(data)
+      ActiveSupport::JSON.decode(ActiveSupport::JSON.encode(data))
+    end
   end
 end
