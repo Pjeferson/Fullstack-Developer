@@ -1,6 +1,8 @@
 require "test_helper"
 
 class SpreadsheetImportJobTest < ActiveJob::TestCase
+  include ActionCable::TestHelper
+
   FIXTURES = Rails.root.join("test/fixtures/files/imports")
 
   setup do
@@ -21,6 +23,12 @@ class SpreadsheetImportJobTest < ActiveJob::TestCase
     assert_predicate User.find_by!(email_address: "bob@example.com"), :admin?
   end
 
+  test "broadcasts the import's summary at each update: processing, each batch, and completed" do
+    assert_broadcasts(SpreadsheetImportChannel.broadcasting_for(@import), 3) do
+      SpreadsheetImportJob.perform_now(@import.id)
+    end
+  end
+
   test "a failure partway through leaves the checkpoint at the last completed batch and marks the import failed" do
     with_failing_second_batch do
       job = SpreadsheetImportJob.new(@import.id)
@@ -33,6 +41,19 @@ class SpreadsheetImportJobTest < ActiveJob::TestCase
     assert_equal 1, @import.success_count
     assert User.exists?(email_address: "alice@example.com")
     assert_not User.exists?(email_address: "bob@example.com")
+  end
+
+  test "the discard_on path (unsupported format) also broadcasts the failed status" do
+    attach_csv(@import, "valid.csv", content_type: "application/pdf", filename: "not-a-spreadsheet.pdf")
+
+    assert_broadcasts(SpreadsheetImportChannel.broadcasting_for(@import), 1) do
+      perform_enqueued_jobs do
+        SpreadsheetImportJob.perform_later(@import.id)
+      end
+    end
+    @import.reload
+
+    assert_predicate @import, :failed?
   end
 
   test "resuming after a failure continues from the checkpoint without duplicating Users" do
@@ -73,11 +94,11 @@ class SpreadsheetImportJobTest < ActiveJob::TestCase
   end
 
   private
-    def attach_csv(import, filename)
+    def attach_csv(import, fixture_filename, content_type: "text/csv", filename: fixture_filename)
       import.file.attach(
-        io: File.open(FIXTURES.join(filename)),
+        io: File.open(FIXTURES.join(fixture_filename)),
         filename: filename,
-        content_type: "text/csv"
+        content_type: content_type
       )
     end
 

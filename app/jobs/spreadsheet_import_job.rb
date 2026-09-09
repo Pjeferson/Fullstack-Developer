@@ -10,7 +10,8 @@ class SpreadsheetImportJob < ApplicationJob
   discard_on ActiveRecord::RecordNotFound
 
   discard_on Imports::UnsupportedFormatError do |job, _error|
-    SpreadsheetImport.find_by(id: job.arguments.first)&.update!(status: :failed, finished_at: Time.current)
+    import = SpreadsheetImport.find_by(id: job.arguments.first)
+    import && job.send(:update_and_broadcast!, import, status: :failed, finished_at: Time.current)
   end
 
   retry_on ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad, wait: :polynomially_longer, attempts: 5
@@ -25,16 +26,17 @@ class SpreadsheetImportJob < ApplicationJob
         path: tempfile.path
       )
 
-      import.update!(status: :processing, total_rows: parser.row_count, started_at: import.started_at || Time.current)
+      update_and_broadcast!(import,
+        status: :processing, total_rows: parser.row_count, started_at: import.started_at || Time.current)
 
       process_batches(import, parser)
     end
 
-    import.update!(status: :completed, finished_at: Time.current)
+    update_and_broadcast!(import, status: :completed, finished_at: Time.current)
   rescue Imports::UnsupportedFormatError, ActiveRecord::ConnectionNotEstablished, PG::ConnectionBad
     raise # handled by discard_on/retry_on above — don't mask with our own status update
   rescue StandardError
-    import&.update!(status: :failed, finished_at: Time.current)
+    import && update_and_broadcast!(import, status: :failed, finished_at: Time.current)
     raise
   end
 
@@ -52,13 +54,21 @@ class SpreadsheetImportJob < ApplicationJob
         result = Imports::UserBatchInserter.new(rows).call
         enqueue_avatar_jobs(result.inserted, rows)
 
-        import.update!(
+        update_and_broadcast!(import,
           processed_rows: import.processed_rows + rows.size,
           success_count: import.success_count + result.inserted_count,
           error_count: import.error_count + result.failed_rows.size,
           last_completed_batch: batch_index + 1
         )
       end
+    end
+
+    # Every SpreadsheetImport update the job makes goes through here, not a bare update! — one
+    # explicit, visible place pairing persistence with the broadcast that should follow it,
+    # deliberately not an ActiveRecord callback (see design.md).
+    def update_and_broadcast!(import, attributes)
+      import.update!(attributes)
+      Imports::ProgressBroadcaster.new(import).call
     end
 
     # One AttachRemoteAvatarJob per successfully-inserted row that has an avatar URL — using

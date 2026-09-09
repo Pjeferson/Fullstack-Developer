@@ -6,10 +6,12 @@ schema: spec-driven
 context: |
   Tech stack: Rails 8.1 (Ruby 4.0) + Inertia.js + React 19 (TypeScript),
   PostgreSQL, Tailwind CSS v4, Vite. Solid Queue/Cache/Cable for
-  background jobs/cache/cable, used with DB-backed adapters only in
-  production — development keeps them lightweight (in-process async
-  jobs, memory-store cache, async cable) to avoid needing extra local
-  databases.
+  background jobs/cache/cable — the same DB-backed adapters in both
+  development and production, each with its own Postgres database per
+  role (primary/cache/queue/cable), matching shape in both
+  environments (only the database names differ). `bin/dev`'s Procfile
+  runs a `bin/jobs` process alongside the web/vite/css processes so
+  Solid Queue actually has a worker locally.
 
   Auth: Rails 8's built-in session-cookie authentication generator
   (has_secure_password + a Session model), not Devise/JWT. Every
