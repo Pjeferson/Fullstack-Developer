@@ -52,18 +52,18 @@
 
 ## 6. Spreadsheet imports listing
 
-- [ ] 6.1 Add `app/queries/admin/spreadsheet_imports_query.rb` mirroring
+- [x] 6.1 Add `app/queries/admin/spreadsheet_imports_query.rb` mirroring
   `app/queries/admin/users_query.rb` (cursor `before_id`, `PER_PAGE = 25`,
   `.with_attached_file` to avoid the filename N+1) and
   `test/queries/admin/spreadsheet_imports_query_test.rb` mirroring
   `test/queries/admin/users_query_test.rb`'s cases
-- [ ] 6.2 Add `Admin::SpreadsheetImportsController#index` (query + `imports_json` layering
+- [x] 6.2 Add `Admin::SpreadsheetImportsController#index` (query + `imports_json` layering
   `filename`/`created_at` over `summary_json`, `InertiaRails.scroll`); remove `#new`/`#show`;
   update `config/routes.rb` to `resources :spreadsheet_imports, only: %i[index create]`
-- [ ] 6.3 Update `test/controllers/admin/spreadsheet_imports_controller_test.rb`: remove
+- [x] 6.3 Update `test/controllers/admin/spreadsheet_imports_controller_test.rb`: remove
   `new`/`show` cases, add `index` (pagination shape, N+1 guard), update the `create` success
   case's redirect assertion to the imports index instead of `show`
-- [ ] 6.4 Run `bin/rails test` — full suite green
+- [x] 6.4 Run `bin/rails test` — full suite green
 
 ## 7. Rebuild the admin Users page
 

@@ -8,7 +8,7 @@ Rails.application.routes.draw do
       resource :role, only: :update, controller: "users/roles"
     end
 
-    resources :spreadsheet_imports, only: %i[new create show]
+    resources :spreadsheet_imports, only: %i[index create]
   end
 
   mount ActionCable.server => "/cable"
