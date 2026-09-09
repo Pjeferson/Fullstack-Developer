@@ -1,8 +1,8 @@
 ## 1. Remove the example scaffold
 
-- [ ] 1.1 Delete `app/controllers/inertia_example_controller.rb` and
+- [x] 1.1 Delete `app/controllers/inertia_example_controller.rb` and
   `app/javascript/pages/inertia_example/` (`index.tsx`, `index.module.css`)
-- [ ] 1.2 Remove `get 'inertia-example', ...` and the old `root 'inertia_example#index'` from
+- [x] 1.2 Remove `get 'inertia-example', ...` and the old `root 'inertia_example#index'` from
   `config/routes.rb`
 
 ## 2. Registration backend
