@@ -2,6 +2,34 @@
 
 Rails 8 + [Inertia.js](https://inertiajs.com/) + React frontend, bundled with Vite.
 
+## AI Disclosure
+
+This project was built using a modern AI approach centered on spec-driven development — full
+transparency below.
+
+- **Model**: Claude Sonnet 5 (`claude-sonnet-5`), via Claude Code.
+- **Scope of use**: AI was used throughout the entire development process — planning,
+  implementation, and verification — not just for isolated snippets or boilerplate.
+  - **Planning**: every feature branch was planned as an OpenSpec change (see `openspec/`)
+    before any code was written — a proposal (why/what), a design doc (technical decisions,
+    alternatives considered, risks and trade-offs), a delta spec (testable requirements), and a
+    task breakdown, all reviewed and approved up front. The full history is preserved under
+    `openspec/changes/archive/`.
+  - **Implementation**: application code, tests, and configuration were written by the assistant
+    from those approved plans, in small atomic commits. Once every commit for a change was made,
+    I reviewed the resulting diffs line by line and manually tested the affected scenarios before
+    considering that change complete.
+  - **Verification**: the automated test suite, linter (`rubocop`), and security scanner
+    (`brakeman`) were run after every change; user-facing flows were additionally smoke-tested
+    end-to-end in a real browser before a branch was considered done.
+- **Human role**: product and UX decisions, the reference design mockups, and final
+  review/approval of every plan and commit were mine — including catching and directing fixes
+  for real bugs found by reviewing the running app (e.g. a layout regression reported from a
+  screenshot).
+
+Every commit in this repository's history carries a `Co-Authored-By: Claude Sonnet 5` trailer
+reflecting this.
+
 > This README will grow as the project evolves. For now it only covers running the app locally.
 
 ## Prerequisites

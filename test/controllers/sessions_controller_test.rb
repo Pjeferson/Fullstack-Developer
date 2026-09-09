@@ -8,6 +8,18 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_response :success
   end
 
+  test "an already-authenticated user visiting new is redirected to their landing page" do
+    sign_in_as(@user)
+    get new_session_path
+    assert_redirected_to profile_path
+  end
+
+  test "an already-authenticated admin visiting new is redirected to the admin user list" do
+    sign_in_as(users(:admin))
+    get new_session_path
+    assert_redirected_to admin_users_path
+  end
+
   test "create with valid credentials redirects a non-admin to their profile" do
     post session_path, params: { email_address: @user.email_address, password: "password" }
 
