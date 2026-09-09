@@ -5,9 +5,7 @@ Lets an admin User list, invite, edit, and delete other Users, and toggle
 a User's role, from an admin-only area of the app (`/admin/users`). This
 is the only place a User's role can change, and the only place a User
 account other than one's own can be created or removed.
-
 ## Requirements
-
 ### Requirement: Admin-only access
 Every action under `/admin` SHALL be reachable only by an authenticated
 User whose role is `admin`.
@@ -24,12 +22,23 @@ User whose role is `admin`.
   message
 
 ### Requirement: List Users
-An admin SHALL be able to see every User in the system.
+An admin SHALL be able to see every User in the system, loaded 25 at a time (newest first) as
+they scroll, rather than all at once.
 
 #### Scenario: Viewing the list
 - **WHEN** an admin visits `/admin/users`
-- **THEN** every User is shown with their email, full name, role, and
-  avatar status (set / processing / failed / none)
+- **THEN** the first 25 Users (newest first) are shown, each with their email, full name, role,
+  and avatar status (set / processing / failed / none)
+
+#### Scenario: Loading more Users
+- **WHEN** an admin scrolls near the bottom of the User list and more Users exist beyond what's
+  currently shown
+- **THEN** the next 25 Users are loaded and appended to the list automatically, without a full
+  page reload
+
+#### Scenario: Reaching the end of the list
+- **WHEN** every User has been loaded
+- **THEN** scrolling further loads nothing more, and no further request is made
 
 ### Requirement: Invite a User
 An admin SHALL be able to create a new User by email address and full
@@ -138,3 +147,4 @@ capability. Role SHALL NOT be changeable through the single-user invite or edit 
   `role` parameter at all, so a single User's role can only change through the
   dedicated role action, or, at creation time only, through a spreadsheet import row (see the
   spreadsheet-import capability for that behavior)
+
