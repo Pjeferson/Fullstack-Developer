@@ -27,16 +27,12 @@ module Admin
     end
 
     def show
-      render inertia: "admin/spreadsheet_imports/show", props: { import: import_json(@import) }
+      render inertia: "admin/spreadsheet_imports/show", props: { import: @import.summary_json }
     end
 
     private
       def set_import
         @import = SpreadsheetImport.find(params[:id])
-      end
-
-      def import_json(import)
-        import.as_json(only: %i[id status total_rows processed_rows success_count error_count])
       end
   end
 end

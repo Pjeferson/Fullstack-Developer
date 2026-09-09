@@ -34,30 +34,35 @@
 
 ## 3. Broadcast the import's state explicitly, from the job
 
-- [ ] 3.1 Add `SpreadsheetImport#summary_json` (the field list currently duplicated in
+- [x] 3.1 Add `SpreadsheetImport#summary_json` (the field list currently duplicated in
   `Admin::SpreadsheetImportsController#import_json`: `id`, `status`, `total_rows`,
   `processed_rows`, `success_count`, `error_count`) — no callback, the model stays persistence +
   serialization only (see design.md for why a callback was tried and rejected); update the
   controller's `show` action to call `@import.summary_json` instead of its own `import_json`,
   removing the now-duplicate private method
-- [ ] 3.2 Add `app/channels/spreadsheet_import_channel.rb` (`subscribed` finds the import by
-  `params[:id]`, rejects unless `current_user&.admin?`, otherwise `stream_for import`)
-- [ ] 3.3 Add `app/services/imports/progress_broadcaster.rb` (`new(import).call` —
+- [x] 3.2 Add `app/channels/application_cable/channel.rb` (the base `ApplicationCable::Channel`
+  — missing from this app entirely, `connection.rb` existed but never its channel counterpart;
+  standard Rails boilerplate) and `app/channels/spreadsheet_import_channel.rb` (`subscribed`
+  finds the import by `params[:id]`, rejects unless `current_user&.admin?`, otherwise
+  `stream_for import`)
+- [x] 3.3 Add `app/services/imports/progress_broadcaster.rb` (`new(import).call` —
   `SpreadsheetImportChannel.broadcast_to(import, import.summary_json)`) and
   `test/services/imports/progress_broadcaster_test.rb` covering it broadcasts the import's
   current `summary_json`
-- [ ] 3.4 Update `SpreadsheetImportJob`: add a private `update_and_broadcast!(import,
+- [x] 3.4 Update `SpreadsheetImportJob`: add a private `update_and_broadcast!(import,
   attributes)` helper (`import.update!(attributes)` then `Imports::ProgressBroadcaster.new(
-  import).call`) and use it at all four places the job currently calls `update!` directly (each
-  batch, completion, the `rescue StandardError` block, the `discard_on` block); add
-  `test/jobs/spreadsheet_import_job_test.rb` coverage asserting each of those four paths
-  broadcasts on `SpreadsheetImportChannel` (`assert_broadcast_on`), guarding against a future
+  import).call`) and use it at all five places the job calls `update!` directly (marking
+  processing, each batch, completion, the `rescue StandardError` block, the `discard_on` block —
+  corrected from design.md's earlier undercount of "four"); add `test/jobs/
+  spreadsheet_import_job_test.rb` coverage asserting the happy path broadcasts once per update
+  (`assert_broadcasts`, count 3 for a single-batch file: processing, the batch, completed) and
+  that the `discard_on` path broadcasts the failed status too, guarding against a future
   `update!` added without going through the helper
-- [ ] 3.5 Add `test/channels/spreadsheet_import_channel_test.rb` (`ActionCable::Channel::
+- [x] 3.5 Add `test/channels/spreadsheet_import_channel_test.rb` (`ActionCable::Channel::
   TestCase`) covering: an admin subscribing to an existing import's id is confirmed and streaming
-  (`assert_has_stream_for`); a non-admin connection is rejected (`assert_reject_subscription`);
-  subscribing with a nonexistent import id is rejected
-- [ ] 3.6 Update `test/controllers/admin/spreadsheet_imports_controller_test.rb`'s `show` test
+  (`subscription.confirmed?`, `assert_has_stream_for`); a non-admin connection is rejected
+  (`subscription.rejected?`); subscribing with a nonexistent import id is rejected
+- [x] 3.6 Update `test/controllers/admin/spreadsheet_imports_controller_test.rb`'s `show` test
   if needed so it still passes against `summary_json` (props shape is unchanged, only where the
   method lives)
 

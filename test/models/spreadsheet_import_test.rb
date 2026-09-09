@@ -12,4 +12,19 @@ class SpreadsheetImportTest < ActiveSupport::TestCase
 
     assert_equal users(:admin), import.admin
   end
+
+  test "summary_json exposes only status/progress fields" do
+    import = SpreadsheetImport.create!(
+      admin: users(:admin), status: :processing, total_rows: 10, processed_rows: 4,
+      success_count: 3, error_count: 1
+    )
+
+    assert_equal(
+      {
+        "id" => import.id, "status" => "processing", "total_rows" => 10,
+        "processed_rows" => 4, "success_count" => 3, "error_count" => 1
+      },
+      import.summary_json
+    )
+  end
 end

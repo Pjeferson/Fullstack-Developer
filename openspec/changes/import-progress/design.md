@@ -41,9 +41,10 @@ updates to reach the browser.
 ### Broadcast explicitly from the job, via a dedicated service — not a model callback
 
 An `after_update_commit :broadcast_progress` callback on `SpreadsheetImport` was the first
-draft of this design: one line on the model, and every `update!` the job already performs (four
-sites: each batch, completion, failure, the `discard_on` path) would broadcast automatically,
-nothing to remember at any call site. Reconsidered and dropped, on reflection that a callback is
+draft of this design: one line on the model, and every `update!` the job already performs (five
+sites: marking processing, each batch, completion, failure, the `discard_on` path) would
+broadcast automatically, nothing to remember at any call site. Reconsidered and dropped, on
+reflection that a callback is
 the wrong trade here even though it's the less-typing option: it makes broadcasting an invisible
 side effect of persistence — nothing at `import.update!(...)`'s call site hints that saving the
 record also pushes a WebSocket message, so understanding what a given `update!` actually does
@@ -85,7 +86,7 @@ module Imports
 end
 ```
 
-`SpreadsheetImportJob` calls it explicitly, right after each `update!` — kept DRY (not four
+`SpreadsheetImportJob` calls it explicitly, right after each `update!` — kept DRY (not five
 copy-pasted two-line blocks) via one small private job method rather than a model callback:
 
 ```ruby
@@ -95,9 +96,11 @@ def update_and_broadcast!(import, attributes)
 end
 ```
 
-used at all four sites (`update_and_broadcast!(import, status: :processing, ...)`, `...
-status: :completed, ...`, `... status: :failed, ...` in the rescue block, and in `discard_on`'s
-block). This keeps the "one place to remember" benefit the callback had, but as an explicit,
+used at all five sites (`update_and_broadcast!(import, status: :processing, ...)`, the per-batch
+update inside the loop, `... status: :completed, ...`, `... status: :failed, ...` in the rescue
+block, and in `discard_on`'s block — corrected here from an earlier undercount of "four", which
+missed the per-batch site). This keeps the "one place to remember" benefit the callback had, but
+as an explicit,
 readable call sitting right next to the `update!` it pairs with, in the class actually doing the
 work — not a fact you have to already know to find by opening an unrelated file. The known cost,
 accepted deliberately: broadcasting now depends on every update site actually calling
@@ -277,8 +280,9 @@ slower for no benefit.
 - **[Explicit `update_and_broadcast!` calls can be skipped by a future `update!` that bypasses
   it]** → the trade-off taken on deliberately by rejecting the callback approach (see the
   Decisions section above): nothing structurally forces every future write to broadcast. Task
-  3.4 covers this with a test asserting each of the job's four update paths actually broadcasts,
-  so a regression here fails a test rather than surfacing as a silently-stale status page.
+  3.4 covers this with a test asserting the happy path broadcasts once per update and the
+  `discard_on` path broadcasts too, so a regression here fails a test rather than surfacing as a
+  silently-stale status page.
 
 ## Migration Plan
 
