@@ -39,16 +39,16 @@
 
 ## 5. Associate Users with their originating spreadsheet import
 
-- [ ] 5.1 Add migration `add_reference :users, :spreadsheet_import, foreign_key: true` (nullable)
+- [x] 5.1 Add migration `add_reference :users, :spreadsheet_import, foreign_key: true` (nullable)
   and run `bin/rails db:migrate`
-- [ ] 5.2 Add `belongs_to :spreadsheet_import, optional: true` to `User`, `has_many :users` to
+- [x] 5.2 Add `belongs_to :spreadsheet_import, optional: true` to `User`, `has_many :users` to
   `SpreadsheetImport`; extend `test/models/user_test.rb` with the association test
-- [ ] 5.3 Change `Imports::UserBatchInserter.new(rows)` to `.new(rows, import:)`, add
+- [x] 5.3 Change `Imports::UserBatchInserter.new(rows)` to `.new(rows, import:)`, add
   `spreadsheet_import_id: import.id` to `attributes_for`'s `insert_all` payload; update
   `SpreadsheetImportJob#process_batches` to pass `import:`; update
   `test/services/imports/user_batch_inserter_test.rb` (assert `spreadsheet_import_id` set on
   every inserted row) and `test/jobs/spreadsheet_import_job_test.rb` for the new call signature
-- [ ] 5.4 Run `bin/rails test` — full suite green
+- [x] 5.4 Run `bin/rails test` — full suite green
 
 ## 6. Spreadsheet imports listing
 

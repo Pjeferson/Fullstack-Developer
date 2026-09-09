@@ -8,8 +8,9 @@ module Imports
     # download job.
     Result = Struct.new(:inserted_count, :failed_rows, :inserted, keyword_init: true)
 
-    def initialize(rows)
+    def initialize(rows, import:)
       @rows = rows
+      @import = import
     end
 
     def call
@@ -27,7 +28,7 @@ module Imports
     end
 
     private
-      attr_reader :rows
+      attr_reader :rows, :import
 
       # One bcrypt hash for the whole batch, not once per row (bcrypt is deliberately slow) and
       # not once for the whole job (every User in the file sharing a single digest is an
@@ -45,7 +46,8 @@ module Imports
           email_address: email_for(row),
           full_name: row["full_name"].to_s.strip,
           role: User.roles.fetch(role_key_for(row)),
-          password_digest: digest
+          password_digest: digest,
+          spreadsheet_import_id: import.id
         }
       end
 
