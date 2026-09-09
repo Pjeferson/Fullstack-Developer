@@ -1,11 +1,11 @@
 ## 1. Dependencies
 
-- [ ] 1.1 Add `lucide-react` and `@headlessui/react` to `package.json`; confirm `npm run check`
+- [x] 1.1 Add `lucide-react` and `@headlessui/react` to `package.json`; confirm `npm run check`
   still passes with no other changes
 
 ## 2. Design tokens
 
-- [ ] 2.1 Add an `@theme` block to `app/javascript/entrypoints/application.css` aliasing
+- [x] 2.1 Add an `@theme` block to `app/javascript/entrypoints/application.css` aliasing
   `--color-primary`/`--color-primary-hover`/`--color-success`/`--color-warning`/
   `--color-danger`/`--color-surface`/`--color-background`/`--color-border`/`--color-text`/
   `--color-text-muted` to Tailwind's existing indigo/slate/emerald/amber/red scale, and
