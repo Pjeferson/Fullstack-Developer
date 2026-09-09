@@ -25,6 +25,20 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_inertia_props { |props| props[:users].map { |u| u[:id] }.include?(@user.id) }
   end
 
+  test "the user list includes created_at and updated_at, newest first" do
+    sign_in_as(@admin)
+    get admin_users_path
+
+    assert_inertia_props do |props|
+      ids = props[:users].map { |u| u[:id] }
+      user_row = props[:users].find { |u| u[:id] == @user.id }
+
+      ids == ids.sort.reverse &&
+        user_row[:created_at].present? &&
+        user_row[:updated_at].present?
+    end
+  end
+
   test "admin can view the new user form" do
     sign_in_as(@admin)
     get new_admin_user_path
