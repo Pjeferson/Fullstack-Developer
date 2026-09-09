@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react'
 import { FormEvent, ReactNode } from 'react'
 
-import AdminLayout from '@/layouts/AdminLayout'
+import AppShell from '@/components/layout/AppShell'
 
 export default function AdminSpreadsheetImportsNew() {
   const { data, setData, post, processing, errors } = useForm<{ file: File | null }>({ file: null })
@@ -47,4 +47,4 @@ export default function AdminSpreadsheetImportsNew() {
   )
 }
 
-AdminSpreadsheetImportsNew.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>
+AdminSpreadsheetImportsNew.layout = (page: ReactNode) => <AppShell>{page}</AppShell>

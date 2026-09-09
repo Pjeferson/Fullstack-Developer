@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react'
 import { FormEvent, ReactNode } from 'react'
 
-import AdminLayout from '@/layouts/AdminLayout'
+import AppShell from '@/components/layout/AppShell'
 import AvatarField from '@/components/AvatarField'
 import { UserProfile } from '@/types'
 
@@ -79,4 +79,4 @@ export default function AdminUsersEdit({ user }: { user: UserProfile }) {
   )
 }
 
-AdminUsersEdit.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>
+AdminUsersEdit.layout = (page: ReactNode) => <AppShell>{page}</AppShell>

@@ -26,16 +26,16 @@
 
 ## 4. Responsive app shell
 
-- [ ] 4.1 Add `components/layout/Sidebar.tsx` (fixed `md:flex md:w-64` and up; nav items: Users,
+- [x] 4.1 Add `components/layout/Sidebar.tsx` (fixed `md:flex md:w-64` and up; nav items: Users,
   Imports, My profile, Sign out — no separate "Dashboard" item, since `/admin/users` already is
   the dashboard) and `components/layout/Topbar.tsx` (current-user avatar/email, mobile menu
   button)
-- [ ] 4.2 Add `components/layout/AppShell.tsx` wiring `Sidebar` + `Topbar`, with the sidebar
+- [x] 4.2 Add `components/layout/AppShell.tsx` wiring `Sidebar` + `Topbar`, with the sidebar
   opening as a Headless UI `Dialog` drawer below `md` on the menu button
-- [ ] 4.3 Delete `app/javascript/layouts/AdminLayout.tsx`; update `admin/users/index.tsx` and
+- [x] 4.3 Delete `app/javascript/layouts/AdminLayout.tsx`; update `admin/users/index.tsx` and
   `admin/spreadsheet_imports/*.tsx`'s `.layout` assignment to `AppShell` (existing page content
   unchanged for now — this task only swaps the shell)
-- [ ] 4.4 Confirm `npm run check` is clean and the app still renders (existing pages, new shell)
+- [x] 4.4 Confirm `npm run check` is clean and the app still renders (existing pages, new shell)
 
 ## 5. Associate Users with their originating spreadsheet import
 

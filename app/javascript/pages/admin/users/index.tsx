@@ -1,7 +1,7 @@
 import { Head, Link, InfiniteScroll } from '@inertiajs/react'
 import { ReactNode, useEffect, useState } from 'react'
 
-import AdminLayout from '@/layouts/AdminLayout'
+import AppShell from '@/components/layout/AppShell'
 import DashboardStats from '@/components/admin/DashboardStats'
 import UsersTable from '@/components/admin/UsersTable'
 import { useDashboardStats } from '@/hooks/useDashboardStats'
@@ -38,4 +38,4 @@ export default function AdminUsersIndex({ users, stats: initialStats }: { users:
   )
 }
 
-AdminUsersIndex.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>
+AdminUsersIndex.layout = (page: ReactNode) => <AppShell>{page}</AppShell>

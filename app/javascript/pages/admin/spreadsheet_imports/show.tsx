@@ -1,7 +1,7 @@
 import { Head, Link, router } from '@inertiajs/react'
 import { ReactNode, useEffect, useState } from 'react'
 
-import AdminLayout from '@/layouts/AdminLayout'
+import AppShell from '@/components/layout/AppShell'
 import { useImportProgress } from '@/hooks/useImportProgress'
 import { SpreadsheetImportSummary } from '@/types'
 
@@ -73,4 +73,4 @@ export default function AdminSpreadsheetImportsShow({ import: initialImport }: {
   )
 }
 
-AdminSpreadsheetImportsShow.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>
+AdminSpreadsheetImportsShow.layout = (page: ReactNode) => <AppShell>{page}</AppShell>

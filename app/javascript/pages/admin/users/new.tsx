@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react'
 import { FormEvent, ReactNode } from 'react'
 
-import AdminLayout from '@/layouts/AdminLayout'
+import AppShell from '@/components/layout/AppShell'
 import AvatarField from '@/components/AvatarField'
 
 export default function AdminUsersNew() {
@@ -75,4 +75,4 @@ export default function AdminUsersNew() {
   )
 }
 
-AdminUsersNew.layout = (page: ReactNode) => <AdminLayout>{page}</AdminLayout>
+AdminUsersNew.layout = (page: ReactNode) => <AppShell>{page}</AppShell>
