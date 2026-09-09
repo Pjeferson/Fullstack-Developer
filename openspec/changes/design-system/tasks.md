@@ -107,8 +107,8 @@
 
 ## 9. Final verification
 
-- [ ] 9.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
-- [ ] 9.2 Manual multi-viewport smoke test via the `run` skill: resize desktop → tablet → mobile
+- [x] 9.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
+- [x] 9.2 Manual multi-viewport smoke test via the `run` skill: resize desktop → tablet → mobile
   confirming sidebar→drawer, table→card, and modal-width behavior; create a User via modal
   (success and a forced validation error, confirming the modal stays open with errors); edit and
   delete a User via modal; run a spreadsheet import, confirm it appears in the history and its
