@@ -68,9 +68,9 @@
 
 ## 4. Frontend Action Cable plumbing
 
-- [ ] 4.1 Add `@rails/actioncable` to `package.json` (`npm install`) and verify `npm run check`
+- [x] 4.1 Add `@rails/actioncable` to `package.json` (`npm install`) and verify `npm run check`
   stays clean
-- [ ] 4.2 Add `app/javascript/hooks/useChannel.ts` — a generic `<T>` hook (cached shared
+- [x] 4.2 Add `app/javascript/hooks/useChannel.ts` — a generic `<T>` hook (cached shared
   consumer; subscribe on mount/params change, unsubscribe on unmount), with a comment on the
   hook itself explaining why a hook (subscription lifecycle tied to mount/unmount — see
   design.md) rather than a plain function
