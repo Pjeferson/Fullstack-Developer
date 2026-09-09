@@ -21,17 +21,17 @@
 
 ## 4. Fix admin list N+1s
 
-- [ ] 4.1 `Admin::UsersQuery` and `Admin::SpreadsheetImportsQuery`: accept `scope:` in the
+- [x] 4.1 `Admin::UsersQuery` and `Admin::SpreadsheetImportsQuery`: accept `scope:` in the
   constructor (defaulting to `User.all`/`SpreadsheetImport.all`), use it as the base of `fetched`
   instead of a hardcoded/absent scope
-- [ ] 4.2 `Admin::UsersController#index` passes `scope: User.with_attached_avatar_image`;
+- [x] 4.2 `Admin::UsersController#index` passes `scope: User.with_attached_avatar_image`;
   `Admin::SpreadsheetImportsController#index` passes `scope: SpreadsheetImport.with_attached_file`
   (moved out of the query object, where it was hardcoded)
-- [ ] 4.3 Add a regression test to each controller test (`admin/users_controller_test.rb`,
+- [x] 4.3 Add a regression test to each controller test (`admin/users_controller_test.rb`,
   `admin/spreadsheet_imports_controller_test.rb`): create several records with attachments,
   subscribe to `sql.active_record` notifications, assert the attachment-table query count stays
   flat (≈1-2) regardless of row count
-- [ ] 4.4 Run `bin/rails test` — full suite green
+- [x] 4.4 Run `bin/rails test` — full suite green
 
 ## 5. Document the backend-validation decision
 

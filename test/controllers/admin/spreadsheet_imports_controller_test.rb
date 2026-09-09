@@ -34,6 +34,23 @@ class Admin::SpreadsheetImportsControllerTest < ActionDispatch::IntegrationTest
     end
   end
 
+  test "file attachments are eager-loaded, not queried per row (no N+1)" do
+    3.times do |i|
+      import = SpreadsheetImport.create!(admin: @admin)
+      import.file.attach(io: StringIO.new("a,b"), filename: "people#{i}.csv", content_type: "text/csv")
+    end
+    sign_in_as(@admin)
+
+    attachment_queries = 0
+    callback = ->(*, payload) { attachment_queries += 1 if payload[:sql].include?("active_storage_attachments") }
+
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+      get admin_spreadsheet_imports_path
+    end
+
+    assert_operator attachment_queries, :<=, 2
+  end
+
   test "requesting a second page via before_id returns the next batch, not the same one" do
     31.times { SpreadsheetImport.create!(admin: @admin) }
 

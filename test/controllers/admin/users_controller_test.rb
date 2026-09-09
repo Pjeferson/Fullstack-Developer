@@ -27,6 +27,23 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_inertia_props { |props| props[:users].map { |u| u[:id] }.include?(@user.id) }
   end
 
+  test "avatar attachments are eager-loaded, not queried per row (no N+1)" do
+    3.times do |i|
+      user = User.create!(email_address: "avatar#{i}@example.com", full_name: "Avatar #{i}", password: "password")
+      user.avatar_image.attach(fixture_file_upload("avatar.png", "image/png"))
+    end
+    sign_in_as(@admin)
+
+    attachment_queries = 0
+    callback = ->(*, payload) { attachment_queries += 1 if payload[:sql].include?("active_storage_attachments") }
+
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+      get admin_users_path
+    end
+
+    assert_operator attachment_queries, :<=, 2
+  end
+
   test "the user list includes created_at and updated_at, newest first" do
     sign_in_as(@admin)
     get admin_users_path
