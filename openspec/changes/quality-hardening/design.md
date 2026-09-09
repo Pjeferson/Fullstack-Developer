@@ -163,6 +163,13 @@ this file is already being touched for validation.
 - **[No automated test for the new `useValidation` hook or Zod schemas]** → Consistent with this
   branch's stated non-goal (no JS test runner yet); covered by manual verification instead, same
   as every other frontend behavior in this app until Playwright lands.
+- **[`ImportUploader`'s extension check can't match the server's content-type sniff exactly]** →
+  A browser can only see a file's name, not sniff its actual bytes the way
+  `Imports::ParserFactory` does server-side; a `.csv`-renamed non-CSV file passes the client
+  check and still gets a real backend check on upload, so this narrows the window for showing an
+  error early without weakening what's actually enforced.
+- **[This increment wasn't manually verified in a real browser]** → Every other item in this
+  change was; this one was left for the user to test themselves, at their request.
 
 ## Post-Review Increment: refresh the import row on modal close
 
@@ -185,6 +192,46 @@ for exactly this ("refetch and replace instead of merge"), but using it would al
 infinite-scroll list back to its first page, discarding any depth an admin had already scrolled
 to — an acceptable cost for some apps, but avoidable here entirely by not calling the server at
 all, since the modal already held the answer.
+
+## Post-Review Increment: client-side validation on the import upload field
+
+Noticed while reviewing item 6 in this same change: every other required field in the app
+(sign-in, registration, forgot/reset password, `UserForm`) got a Zod schema in that item, but
+`ImportUploader`'s file input didn't - it's a required field too, still relying on native HTML5
+`required` alone plus a full request round trip to surface `"can't be blank"` or `"must be a CSV
+or XLSX file"` from `Admin::SpreadsheetImportsController#create`.
+
+`importUploadSchema` (`app/javascript/schemas/index.ts`) mirrors that controller's own checks, in
+the same order it makes them - presence first, then format against
+`Imports::ParserFactory`'s supported extensions (`.csv`/`.xlsx`):
+
+```ts
+const importFile = z
+  .instanceof(File, { error: "can't be blank" })
+  .refine((file) => /\.(csv|xlsx)$/i.test(file.name), { error: 'must be a CSV or XLSX file' })
+
+export const importUploadSchema = z.object({ file: importFile })
+```
+
+`z.instanceof(File)` rejects `null` (nothing selected yet) with the custom "can't be blank"
+message directly - confirmed by hand that this doesn't also throw or emit a second issue when
+`file` is `null`, since the refine step never runs once the base type check has already failed.
+The extension check here is necessarily looser than the server's, which sniffs the uploaded
+bytes' content-type rather than trusting a filename - a browser can't do that, so a `.csv`-named
+file still gets a full backend check regardless of what the client already accepted.
+
+`useForm`'s `data.file` is typed `File | null` (a fresh form has no file yet), while the schema's
+output is `File` (a valid submission always has one) - `ImportUploader.tsx` casts the value at
+the `useValidation` call site to bridge that gap; the cast doesn't change what's actually
+validated, `z.instanceof` still rejects a real `null` at runtime exactly as before.
+
+Wired the same way as every other form in this change: `onBlur={() => touch('file')}`,
+`clientErrors.file?.[0] ?? errors.file`, and the submit handler gains
+`if (!isValid) { touchAll(); return }` ahead of `post(...)`.
+
+**Left unverified in a real browser for this increment** - `npm run check` and `bin/rails test`
+both stayed clean, but the user asked to test this one manually themselves rather than have it
+checked here.
 
 ## Migration Plan
 

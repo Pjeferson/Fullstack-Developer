@@ -39,3 +39,16 @@ export const passwordsEditSchema = z
     error: "doesn't match",
     path: [ 'password_confirmation' ],
   })
+
+// Mirrors Admin::SpreadsheetImportsController#create's own checks, in the same order it makes
+// them: presence first (`file.blank?`), then format (Imports::ParserFactory's supported
+// extensions) - not a new, invented rule, and not stricter than what content-type sniffing on
+// the server ultimately allows (the extension check here is necessarily looser, since a browser
+// can't sniff content-type the way the server does off the uploaded bytes).
+const importFile = z
+  .instanceof(File, { error: "can't be blank" })
+  .refine((file) => /\.(csv|xlsx)$/i.test(file.name), { error: 'must be a CSV or XLSX file' })
+
+export const importUploadSchema = z.object({
+  file: importFile,
+})

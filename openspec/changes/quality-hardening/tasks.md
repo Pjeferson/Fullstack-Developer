@@ -81,3 +81,17 @@
 - [x] 8.3 Verified via a real browser with a Solid Queue worker running: uploaded a CSV, watched
   the modal reach "Completed" live, closed it, confirmed the row read "Completed 2/2"
   immediately with no network request
+
+## 9. Post-review increment: client-side validation on the import upload field
+
+- [x] 9.1 Noticed while reviewing item 6: `ImportUploader`'s file input was the one required
+  field in the app that item 6 didn't cover - still relying on native HTML5 `required` plus a
+  full round trip to see `"can't be blank"`/`"must be a CSV or XLSX file"` from the server
+- [x] 9.2 Added `importUploadSchema` to `app/javascript/schemas/index.ts`, mirroring
+  `Admin::SpreadsheetImportsController#create`'s own checks in the same order (presence, then
+  `Imports::ParserFactory`'s supported extensions)
+- [x] 9.3 Wired `useValidation(importUploadSchema, ...)` into `ImportUploader.tsx`:
+  `onBlur={() => touch('file')}`, `clientErrors.file?.[0] ?? errors.file`, submit handler gains
+  `if (!isValid) { touchAll(); return }`
+- [x] 9.4 `npm run check` and `bin/rails test` both clean; left manual browser verification to
+  the user for this increment, per their request

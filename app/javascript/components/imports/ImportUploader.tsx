@@ -3,6 +3,8 @@ import { useForm } from '@inertiajs/react'
 
 import Button from '@/components/ui/Button'
 import Card from '@/components/ui/Card'
+import { useValidation } from '@/hooks/useValidation'
+import { importUploadSchema } from '@/schemas'
 import { AdminImportListItem } from '@/types'
 
 type Props = {
@@ -16,9 +18,17 @@ type Props = {
 // caller uses to open its progress modal. See design.md.
 export default function ImportUploader({ onUploaded }: Props) {
   const { data, setData, post, processing, errors, reset } = useForm<{ file: File | null }>({ file: null })
+  // importUploadSchema's `file` is typed as File (not File | null) since a valid submission
+  // always has one - the cast just widens useValidation's input type to match useForm's, the
+  // schema still rejects a null file at runtime same as before (see schemas/index.ts).
+  const { errors: clientErrors, isValid, touch, touchAll } = useValidation(importUploadSchema, data as { file: File })
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
     post('/admin/spreadsheet_imports', {
       onSuccess: (page) => {
         reset()
@@ -40,10 +50,13 @@ export default function ImportUploader({ onUploaded }: Props) {
             accept=".csv,.xlsx"
             required
             onChange={(e) => setData('file', e.target.files?.[0] ?? null)}
+            onBlur={() => touch('file')}
             className="mt-1 block w-full text-sm"
           />
           {data.file && <p className="mt-1 text-sm text-text-muted">{data.file.name}</p>}
-          {errors.file && <p className="text-sm text-danger">{errors.file}</p>}
+          {(clientErrors.file?.[0] ?? errors.file) && (
+            <p className="text-sm text-danger">{clientErrors.file?.[0] ?? errors.file}</p>
+          )}
         </div>
 
         <p className="text-sm text-text-muted">

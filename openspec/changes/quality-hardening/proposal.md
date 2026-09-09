@@ -34,6 +34,9 @@ frontend component.
   the admin history table stayed stale after its live-progress modal (watched all the way to
   completion) was closed. Fixed with a local state patch, not a server reload — see design.md's
   "Post-Review Increment" for why a reload was rejected.
+- **Added on review**: extends the client-side validation from item 6 to `ImportUploader`'s file
+  field — the one required field that item missed, mirroring the same presence/format checks
+  `Admin::SpreadsheetImportsController#create` already makes.
 
 Out of scope: closing the coverage gap itself, a JS test runner for the new validation code
 (Playwright remains the next branch), and any change to what the backend actually accepts or
