@@ -14,14 +14,14 @@
 
 ## 3. Base UI component library
 
-- [ ] 3.1 Add `components/ui/Button.tsx`, `Input.tsx`, `Select.tsx` (Headless UI `Listbox`-based)
-- [ ] 3.2 Add `components/ui/Badge.tsx` (variant-based: default/success/warning/danger/purple),
+- [x] 3.1 Add `components/ui/Button.tsx`, `Input.tsx`, `Select.tsx` (Headless UI `Listbox`-based)
+- [x] 3.2 Add `components/ui/Badge.tsx` (variant-based: default/success/warning/danger/purple),
   `Card.tsx`, `Progress.tsx`
-- [ ] 3.3 Add `components/ui/Avatar.tsx` (image with initials fallback when no `avatar_url`) and
+- [x] 3.3 Add `components/ui/Avatar.tsx` (image with initials fallback when no `avatar_url`) and
   `components/ui/Table.tsx` (shared table shell: header row + body slot)
-- [ ] 3.4 Add `components/ui/Modal.tsx` on Headless UI `Dialog` (focus trap, ESC-to-close,
+- [x] 3.4 Add `components/ui/Modal.tsx` on Headless UI `Dialog` (focus trap, ESC-to-close,
   `w-full sm:max-w-md sm:mx-auto` responsive sizing per design.md)
-- [ ] 3.5 Confirm `npm run check` is clean (components exist and typecheck, not yet consumed by
+- [x] 3.5 Confirm `npm run check` is clean (components exist and typecheck, not yet consumed by
   any page)
 
 ## 4. Responsive app shell
