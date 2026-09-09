@@ -83,7 +83,8 @@ including its safety checks.
 The state of an import (how many rows are expected, how many have been processed, how many
 succeeded or failed) SHALL be persisted so it survives a page refresh, and SHALL allow the
 import to resume from where it stopped if interrupted, without duplicating Users or re-emailing
-anyone already processed.
+anyone already processed. While an import is processing, an admin viewing its status page SHALL
+see its counts and status update live, without needing to manually refresh.
 
 #### Scenario: Viewing an in-progress or finished import
 - **WHEN** an admin (re)visits the page for an import they started
@@ -96,11 +97,22 @@ anyone already processed.
 - **THEN** processing continues from the last completed portion of the file — rows already
   successfully imported are not duplicated, and rows not yet reached are still processed
 
-#### Scenario: Live updates are a separate capability
-- **WHEN** an import is processing
-- **THEN** this capability does not itself push live updates to the page — a persisted status
-  that a page load (or manual refresh) can read is sufficient; real-time updates while the page
-  is open are covered separately
+#### Scenario: Live progress while the page is open
+- **WHEN** an admin has an import's status page open while that import is processing
+- **THEN** counts and status update on their own, without a manual reload, reaching the final
+  status (completed/failed) without one either
+
+#### Scenario: Live updates require no reload, but a reload always shows the truth
+- **WHEN** live updates are unavailable (e.g. the connection dropped) and the admin reloads the
+  page instead
+- **THEN** the reloaded page shows the same persisted state a live update would have shown —
+  live updates are a convenience on top of the persisted state, never a separate source of truth
+
+#### Scenario: Only an admin receives live updates for an import
+- **WHEN** a non-admin or an unauthenticated visitor attempts to subscribe to an import's live
+  updates
+- **THEN** the subscription is rejected — the same authorization boundary as the status page
+  itself (any admin, not only the one who started the import)
 
 #### Scenario: No per-row failure detail
 - **WHEN** one or more rows fail (duplicate email, invalid data, or an invalid role)
