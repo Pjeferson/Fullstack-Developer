@@ -16,8 +16,8 @@
 
 ## 3. Remove unused component
 
-- [ ] 3.1 Delete `app/javascript/components/ui/Select.tsx` (confirmed 0 references)
-- [ ] 3.2 Run `npm run check` — clean
+- [x] 3.1 Delete `app/javascript/components/ui/Select.tsx` (confirmed 0 references)
+- [x] 3.2 Run `npm run check` — clean
 
 ## 4. Fix admin list N+1s
 
