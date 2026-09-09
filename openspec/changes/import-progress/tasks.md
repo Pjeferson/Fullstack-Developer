@@ -77,14 +77,14 @@
 
 ## 5. Live-update the import status page
 
-- [ ] 5.1 Update `app/javascript/pages/admin/spreadsheet_imports/show.tsx` to hold the import
+- [x] 5.1 Update `app/javascript/pages/admin/spreadsheet_imports/show.tsx` to hold the import
   summary in local state (`useState(initialImport)`), sync it from the `import` prop on change
   (`useEffect`, keeps the existing manual "Refresh" reload working), and apply
   `useChannel<SpreadsheetImportSummary>('SpreadsheetImportChannel', { id: initialImport.id },
   setSpreadsheetImport)` directly — no `router.reload` involved in the live-update path; add a
   visible progress bar (`processed_rows`/`total_rows`, 0% while `total_rows` is `null`)
   alongside the existing counts
-- [ ] 5.2 Confirm `npm run check` is clean
+- [x] 5.2 Confirm `npm run check` is clean
 
 ## 6. Full verification
 
