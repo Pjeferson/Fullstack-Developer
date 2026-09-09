@@ -27,4 +27,20 @@ class UserTest < ActiveSupport::TestCase
     assert_not user.valid?
     assert_includes user.errors[:email_address], "has already been taken"
   end
+
+  test "spreadsheet_import is optional" do
+    user = User.new(full_name: "New User", email_address: "new@example.com", password: "password")
+    assert_nil user.spreadsheet_import
+    assert user.valid?
+  end
+
+  test "can be associated with the spreadsheet import that created it" do
+    import = SpreadsheetImport.create!(admin: users(:admin))
+    user = User.create!(
+      full_name: "Imported User", email_address: "imported@example.com", password: "password", spreadsheet_import: import
+    )
+
+    assert_equal import, user.spreadsheet_import
+    assert_includes import.users, user
+  end
 end

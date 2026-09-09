@@ -2,3 +2,33 @@
 
 @plugin '@tailwindcss/typography';
 @plugin '@tailwindcss/forms';
+
+/*
+ * Design system tokens (see openspec/changes/design-system/design.md).
+ *
+ * These alias Tailwind's own indigo/slate/emerald/amber/red scale rather than hand-copying the
+ * design mockup's hex values as brand-new custom properties - the mockup's palette *is* that
+ * scale, shade for shade, so aliasing keeps every adjacent shade (a tint for a background, a
+ * darker shade for a pressed state, etc.) available for free instead of only the one value the
+ * mockup shows.
+ */
+@theme {
+  --color-primary: var(--color-indigo-500); /* #6366F1 */
+  --color-primary-hover: var(--color-indigo-600); /* #4F46E5 */
+  --color-success: var(--color-emerald-500);
+  --color-warning: var(--color-amber-500);
+  --color-danger: var(--color-red-500);
+  --color-surface: var(--color-white);
+  --color-background: var(--color-slate-50);
+  --color-border: var(--color-slate-200);
+  --color-text: var(--color-slate-900);
+  --color-text-muted: var(--color-slate-500);
+
+  /* body/small/caption are already covered by Tailwind's text-base/text-sm/text-xs */
+  --text-h1: 2rem; /* 32px/700 */
+  --text-h1--font-weight: 700;
+  --text-h2: 1.5rem; /* 24px/600 */
+  --text-h2--font-weight: 600;
+  --text-h3: 1.125rem; /* 18px/600 */
+  --text-h3--font-weight: 600;
+}

@@ -2,6 +2,7 @@ class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
   has_one_attached :avatar_image, dependent: :purge_later
+  belongs_to :spreadsheet_import, optional: true
 
   enum :role, { default: 0, admin: 1 }, default: :default
 

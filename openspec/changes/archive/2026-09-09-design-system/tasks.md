@@ -1,0 +1,139 @@
+## 1. Dependencies
+
+- [x] 1.1 Add `lucide-react` and `@headlessui/react` to `package.json`; confirm `npm run check`
+  still passes with no other changes
+
+## 2. Design tokens
+
+- [x] 2.1 Add an `@theme` block to `app/javascript/entrypoints/application.css` aliasing
+  `--color-primary`/`--color-primary-hover`/`--color-success`/`--color-warning`/
+  `--color-danger`/`--color-surface`/`--color-background`/`--color-border`/`--color-text`/
+  `--color-text-muted` to Tailwind's existing indigo/slate/emerald/amber/red scale, and
+  `--text-h1`/`--text-h2`/`--text-h3` per the mockup's type scale; confirm the app still builds
+  and renders unchanged (tokens defined but not yet consumed anywhere)
+
+## 3. Base UI component library
+
+- [x] 3.1 Add `components/ui/Button.tsx`, `Input.tsx`, `Select.tsx` (Headless UI `Listbox`-based)
+- [x] 3.2 Add `components/ui/Badge.tsx` (variant-based: default/success/warning/danger/purple),
+  `Card.tsx`, `Progress.tsx`
+- [x] 3.3 Add `components/ui/Avatar.tsx` (image with initials fallback when no `avatar_url`) and
+  `components/ui/Table.tsx` (shared table shell: header row + body slot)
+- [x] 3.4 Add `components/ui/Modal.tsx` on Headless UI `Dialog` (focus trap, ESC-to-close,
+  `w-full sm:max-w-md sm:mx-auto` responsive sizing per design.md)
+- [x] 3.5 Confirm `npm run check` is clean (components exist and typecheck, not yet consumed by
+  any page)
+
+## 4. Responsive app shell
+
+- [x] 4.1 Add `components/layout/Sidebar.tsx` (fixed `md:flex md:w-64` and up; nav items: Users,
+  Imports, My profile, Sign out — no separate "Dashboard" item, since `/admin/users` already is
+  the dashboard) and `components/layout/Topbar.tsx` (current-user avatar/email, mobile menu
+  button)
+- [x] 4.2 Add `components/layout/AppShell.tsx` wiring `Sidebar` + `Topbar`, with the sidebar
+  opening as a Headless UI `Dialog` drawer below `md` on the menu button
+- [x] 4.3 Delete `app/javascript/layouts/AdminLayout.tsx`; update `admin/users/index.tsx` and
+  `admin/spreadsheet_imports/*.tsx`'s `.layout` assignment to `AppShell` (existing page content
+  unchanged for now — this task only swaps the shell)
+- [x] 4.4 Confirm `npm run check` is clean and the app still renders (existing pages, new shell)
+
+## 5. Associate Users with their originating spreadsheet import
+
+- [x] 5.1 Add migration `add_reference :users, :spreadsheet_import, foreign_key: true` (nullable)
+  and run `bin/rails db:migrate`
+- [x] 5.2 Add `belongs_to :spreadsheet_import, optional: true` to `User`, `has_many :users` to
+  `SpreadsheetImport`; extend `test/models/user_test.rb` with the association test
+- [x] 5.3 Change `Imports::UserBatchInserter.new(rows)` to `.new(rows, import:)`, add
+  `spreadsheet_import_id: import.id` to `attributes_for`'s `insert_all` payload; update
+  `SpreadsheetImportJob#process_batches` to pass `import:`; update
+  `test/services/imports/user_batch_inserter_test.rb` (assert `spreadsheet_import_id` set on
+  every inserted row) and `test/jobs/spreadsheet_import_job_test.rb` for the new call signature
+- [x] 5.4 Run `bin/rails test` — full suite green
+
+## 6. Spreadsheet imports listing
+
+- [x] 6.1 Add `app/queries/admin/spreadsheet_imports_query.rb` mirroring
+  `app/queries/admin/users_query.rb` (cursor `before_id`, `PER_PAGE = 25`,
+  `.with_attached_file` to avoid the filename N+1) and
+  `test/queries/admin/spreadsheet_imports_query_test.rb` mirroring
+  `test/queries/admin/users_query_test.rb`'s cases
+- [x] 6.2 Add `Admin::SpreadsheetImportsController#index` (query + `imports_json` layering
+  `filename`/`created_at` over `summary_json`, `InertiaRails.scroll`); remove `#new`/`#show`;
+  update `config/routes.rb` to `resources :spreadsheet_imports, only: %i[index create]`
+- [x] 6.3 Update `test/controllers/admin/spreadsheet_imports_controller_test.rb`: remove
+  `new`/`show` cases, add `index` (pagination shape, N+1 guard), update the `create` success
+  case's redirect assertion to the imports index instead of `show`
+- [x] 6.4 Run `bin/rails test` — full suite green
+
+## 7. Rebuild the admin Users page
+
+- [x] 7.1 Add `components/users/UserStats.tsx` (from `components/admin/DashboardStats.tsx`),
+  `RoleBadge.tsx` (moved, now a thin `ui/Badge` wrapper)
+- [x] 7.2 Add `components/users/UserRow.tsx` and `UserCard.tsx` (table row / mobile card, same
+  props, from `components/admin/UserRow.tsx`), `UserTable.tsx` (renders both, toggled via
+  `hidden md:table` / `md:hidden`)
+- [x] 7.3 Add `components/users/UserForm.tsx` (fields shared by create/edit, from
+  `pages/admin/users/{new,edit}.tsx`) and `UserModal.tsx` (wraps `UserForm` in `ui/Modal` for
+  both create and edit modes; edit mode seeds from the row's already-loaded data)
+- [x] 7.4 Add `components/users/DeleteUserDialog.tsx` (confirmation dialog on `ui/Modal`,
+  replacing the native `confirm()` in the old `UserRow`)
+- [x] 7.5 Rewrite `pages/admin/users/index.tsx`: render `UserStats`, `UserTable` (wrapped in the
+  existing `InfiniteScroll`), and the create/edit/delete modals as local state, not routes
+- [x] 7.6 Remove `Admin::UsersController#new`/`#edit`; make `#create`/`#update` always
+  `redirect_to admin_users_path` (success or failure); update `config/routes.rb` to
+  `resources :users, only: %i[index create update destroy]`
+- [x] 7.7 Delete `pages/admin/users/{new,edit}.tsx` and
+  `components/admin/{DashboardStats,UsersTable,UserRow}.tsx`
+- [x] 7.8 Update `test/controllers/admin/users_controller_test.rb`: remove `new`/`edit` cases,
+  update create/update failure-path assertions to redirect to the index (not a dedicated
+  new/edit path)
+- [x] 7.9 Run `bin/rails test` and `npm run check` — both clean
+
+## 8. Rebuild the admin Imports page
+
+- [x] 8.1 Add `components/imports/ImportStatusBadge.tsx` (thin `ui/Badge` wrapper) and
+  `ImportUploader.tsx` (upload form, from `pages/admin/spreadsheet_imports/new.tsx`)
+- [x] 8.2 Add `components/imports/ImportRow.tsx` and `ImportCard.tsx` (table row / mobile card)
+  and `ImportHistoryTable.tsx` (renders both, same `hidden md:table`/`md:hidden` pattern as
+  `UserTable`)
+- [x] 8.3 Add `components/imports/ImportProgressModal.tsx` (progress bar + counts, from
+  `pages/admin/spreadsheet_imports/show.tsx`, on `ui/Modal`, subscribing via the existing
+  `useImportProgress` hook)
+- [x] 8.4 Add `pages/admin/spreadsheet_imports/index.tsx`: `ImportUploader` + `ImportHistoryTable`
+  wrapped in `InfiniteScroll`; opens `ImportProgressModal` from a history row's data, or from
+  `imports.data[0]` in the upload form's `onSuccess` (see design.md)
+- [x] 8.5 Delete `pages/admin/spreadsheet_imports/{new,show}.tsx`
+- [x] 8.6 Run `bin/rails test` and `npm run check` — both clean
+
+## 9. Final verification
+
+- [x] 9.1 Run `bin/rubocop` and `bin/brakeman` — no new offenses
+- [x] 9.2 Manual multi-viewport smoke test via the `run` skill: resize desktop → tablet → mobile
+  confirming sidebar→drawer, table→card, and modal-width behavior; create a User via modal
+  (success and a forced validation error, confirming the modal stays open with errors); edit and
+  delete a User via modal; run a spreadsheet import, confirm it appears in the history and its
+  progress modal opens and live-updates; verify (console/db) that an imported User's
+  `spreadsheet_import_id` is set
+
+## 10. Post-verification fixes (found via real-browser review after 9.2)
+
+- [x] 10.1 Fix `AppShell`'s sidebar growing to match infinite-scrolled content height instead of
+  staying pinned to the viewport (`min-h-screen` → `h-screen overflow-hidden`, scrolling scoped
+  to `<main>`) - reported as the sidebar's own bottom (My profile/Sign out) becoming unreachable
+  on a long User/import list
+- [x] 10.2 Fix `application.html.erb`'s root `<main class="container mx-auto mt-28 px-5 flex">`
+  (present since the initial project-setup commit, predating this change) silently capping every
+  page's width and pushing it down 112px - broke `AppShell`'s full-viewport model, reported as
+  page content "floating" with unused screen space on a large display. `<main>` is now bare;
+  `sessions/new.tsx`/`passwords/{new,edit}.tsx`/`profiles/show.tsx` (none of which have their own
+  layout) carry the old `mt-28 px-5` on their own wrapper instead, so their look is unchanged
+- [x] 10.3 Bring `profiles/show.tsx` into the design system (out of the original proposal's
+  scope, added on review): `AppShell`/`Card`/`Input`/`Button`/`Avatar`, and a new generic
+  `components/ui/ConfirmDialog.tsx` (the destructive-action confirmation pattern
+  `DeleteUserDialog` established, generalized) replacing the native `confirm()` for self-service
+  account deletion. `Sidebar` becomes role-aware (`current_user.role === 'admin'` gates the
+  Users/Imports nav items and decides the brand link's target) since it's now shared by every
+  authenticated page, not just `/admin/*`
+- [x] 10.4 Re-run `bin/rails test`, `npm run check`, `bin/rubocop` — all clean; manually verified
+  (screenshots, no console errors) an admin's profile shows the full nav and a regular User's
+  shows only My profile/Sign out

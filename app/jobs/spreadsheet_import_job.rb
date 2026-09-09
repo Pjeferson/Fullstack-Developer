@@ -51,7 +51,7 @@ class SpreadsheetImportJob < ApplicationJob
       parser.each_row.each_slice(batch_size).each_with_index do |rows, batch_index|
         next if batch_index < import.last_completed_batch # already inserted on a prior attempt
 
-        result = Imports::UserBatchInserter.new(rows).call
+        result = Imports::UserBatchInserter.new(rows, import: import).call
         enqueue_avatar_jobs(result.inserted, rows)
 
         update_and_broadcast!(import,

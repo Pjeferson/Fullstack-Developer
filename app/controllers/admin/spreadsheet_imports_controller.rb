@@ -1,16 +1,18 @@
 module Admin
   class SpreadsheetImportsController < Admin::BaseController
-    before_action :set_import, only: :show
+    def index
+      query = ::Admin::SpreadsheetImportsQuery.new(before_id: params[:before_id])
 
-    def new
-      render inertia: "admin/spreadsheet_imports/new"
+      render inertia: "admin/spreadsheet_imports/index", props: {
+        imports: InertiaRails.scroll(query.metadata) { imports_json(query.records) }
+      }
     end
 
     def create
       file = params[:file]
 
       if file.blank?
-        redirect_to new_admin_spreadsheet_import_path, inertia: { errors: { file: [ "can't be blank" ] } } and return
+        redirect_to admin_spreadsheet_imports_path, inertia: { errors: { file: [ "can't be blank" ] } } and return
       end
 
       # Checked up front, before any SpreadsheetImport row exists, so an unsupported file
@@ -21,18 +23,20 @@ module Admin
       import.file.attach(file)
       SpreadsheetImportJob.perform_later(import.id)
 
-      redirect_to admin_spreadsheet_import_path(import), notice: "Import started."
+      # No dedicated status page anymore - the admin stays on the imports page, whose newest-
+      # first history ordering already surfaces this import at imports.data[0]; the frontend
+      # opens its progress modal from there. See design.md.
+      redirect_to admin_spreadsheet_imports_path, notice: "Import started."
     rescue Imports::UnsupportedFormatError
-      redirect_to new_admin_spreadsheet_import_path, inertia: { errors: { file: [ "must be a CSV or XLSX file" ] } }
-    end
-
-    def show
-      render inertia: "admin/spreadsheet_imports/show", props: { import: @import.summary_json }
+      redirect_to admin_spreadsheet_imports_path, inertia: { errors: { file: [ "must be a CSV or XLSX file" ] } }
     end
 
     private
-      def set_import
-        @import = SpreadsheetImport.find(params[:id])
+      # Layers filename/created_at onto summary_json, same pattern
+      # Admin::UsersController#users_json uses over profile_json - summary_json itself stays the
+      # one shape shared with every SpreadsheetImportChannel broadcast.
+      def imports_json(imports)
+        imports.map { |import| import.summary_json.merge(filename: import.file.filename.to_s, created_at: import.created_at) }
       end
   end
 end

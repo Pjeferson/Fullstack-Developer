@@ -13,7 +13,7 @@ export default function PasswordsNew() {
   }
 
   return (
-    <div className="mx-auto w-full max-w-sm">
+    <div className="mx-auto mt-28 w-full max-w-sm px-5">
       <Head title="Forgot password" />
 
       <h1 className="text-2xl font-semibold mb-6">Forgot your password?</h1>

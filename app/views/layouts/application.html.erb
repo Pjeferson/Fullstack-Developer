@@ -39,7 +39,12 @@
   </head>
 
   <body>
-    <main class="container mx-auto mt-28 px-5 flex">
+    <%# No wrapper classes here on purpose: AppShell (the admin layout) needs <main> to impose
+        zero width/height constraint so its own h-screen sizing lines up exactly with the real
+        viewport - a container/max-width/margin here (as this had before) shrank every page,
+        admin or not, into a smaller box instead of using the full screen. Pages without their
+        own layout (sessions, passwords, profile) bring their own centering/spacing wrapper. %>
+    <main>
       <%= yield %>
     </main>
   </body>

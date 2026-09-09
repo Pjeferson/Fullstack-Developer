@@ -23,6 +23,13 @@ class SpreadsheetImportJobTest < ActiveJob::TestCase
     assert_predicate User.find_by!(email_address: "bob@example.com"), :admin?
   end
 
+  test "associates every created User with the import" do
+    SpreadsheetImportJob.perform_now(@import.id)
+
+    assert_equal @import, User.find_by!(email_address: "alice@example.com").spreadsheet_import
+    assert_equal @import, User.find_by!(email_address: "bob@example.com").spreadsheet_import
+  end
+
   test "broadcasts the import's summary at each update: processing, each batch, and completed" do
     assert_broadcasts(SpreadsheetImportChannel.broadcasting_for(@import), 3) do
       SpreadsheetImportJob.perform_now(@import.id)
@@ -125,10 +132,10 @@ class SpreadsheetImportJobTest < ActiveJob::TestCase
     def with_failing_second_batch
       call_count = 0
       original_new = Imports::UserBatchInserter.method(:new)
-      failing_new = lambda do |rows|
+      failing_new = lambda do |rows, import:|
         call_count += 1
         raise "boom" if call_count == 2
-        original_new.call(rows)
+        original_new.call(rows, import: import)
       end
 
       Imports::UserBatchInserter.stub(:new, failing_new) { yield }

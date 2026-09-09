@@ -2,18 +2,34 @@ require "test_helper"
 
 module Imports
   class UserBatchInserterTest < ActiveSupport::TestCase
+    setup do
+      @import = SpreadsheetImport.create!(admin: users(:admin))
+    end
+
     test "inserts every row in an all-valid batch" do
       rows = [
         { "email_address" => "new1@example.com", "full_name" => "New One" },
         { "email_address" => "new2@example.com", "full_name" => "New Two" }
       ]
 
-      result = UserBatchInserter.new(rows).call
+      result = UserBatchInserter.new(rows, import: @import).call
 
       assert_equal 2, result.inserted_count
       assert_empty result.failed_rows
       assert User.exists?(email_address: "new1@example.com")
       assert User.exists?(email_address: "new2@example.com")
+    end
+
+    test "associates every inserted User with the import that created it" do
+      rows = [
+        { "email_address" => "new1@example.com", "full_name" => "New One" },
+        { "email_address" => "new2@example.com", "full_name" => "New Two" }
+      ]
+
+      UserBatchInserter.new(rows, import: @import).call
+
+      assert_equal @import, User.find_by!(email_address: "new1@example.com").spreadsheet_import
+      assert_equal @import, User.find_by!(email_address: "new2@example.com").spreadsheet_import
     end
 
     test "a row whose email already belongs to an existing User is reported as a duplicate" do
@@ -22,7 +38,7 @@ module Imports
         { "email_address" => "new@example.com", "full_name" => "New User" }
       ]
 
-      result = UserBatchInserter.new(rows).call
+      result = UserBatchInserter.new(rows, import: @import).call
 
       assert_equal 1, result.inserted_count
       assert_equal 1, result.failed_rows.size
@@ -37,7 +53,7 @@ module Imports
         { "email_address" => "new@example.com", "full_name" => "New User" }
       ]
 
-      result = UserBatchInserter.new(rows).call
+      result = UserBatchInserter.new(rows, import: @import).call
 
       assert_equal 1, result.inserted_count
       assert_equal 1, result.failed_rows.size
@@ -50,7 +66,7 @@ module Imports
     test "a batch with only invalid rows never calls insert_all" do
       rows = [ { "email_address" => "", "full_name" => "" } ]
 
-      result = UserBatchInserter.new(rows).call
+      result = UserBatchInserter.new(rows, import: @import).call
 
       assert_equal 0, result.inserted_count
       assert_equal 1, result.failed_rows.size
@@ -59,7 +75,7 @@ module Imports
     test "role admin creates that User as admin" do
       rows = [ { "email_address" => "new@example.com", "full_name" => "New Admin", "role" => "admin" } ]
 
-      UserBatchInserter.new(rows).call
+      UserBatchInserter.new(rows, import: @import).call
 
       assert_predicate User.find_by!(email_address: "new@example.com"), :admin?
     end
@@ -67,7 +83,7 @@ module Imports
     test "a row with no role column creates a default User" do
       rows = [ { "email_address" => "new@example.com", "full_name" => "New User" } ]
 
-      UserBatchInserter.new(rows).call
+      UserBatchInserter.new(rows, import: @import).call
 
       assert_predicate User.find_by!(email_address: "new@example.com"), :default?
     end
@@ -80,7 +96,7 @@ module Imports
       call_count = 0
 
       BCrypt::Password.stub(:create, ->(*) { call_count += 1; "fake-digest" }) do
-        UserBatchInserter.new(rows).call
+        UserBatchInserter.new(rows, import: @import).call
       end
 
       assert_equal 1, call_count

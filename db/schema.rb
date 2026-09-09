@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_09_09_162041) do
+ActiveRecord::Schema[8.1].define(version: 2026_09_09_193645) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "pg_catalog.plpgsql"
 
@@ -74,13 +74,16 @@ ActiveRecord::Schema[8.1].define(version: 2026_09_09_162041) do
     t.string "full_name", default: "", null: false
     t.string "password_digest", null: false
     t.integer "role", default: 0, null: false
+    t.bigint "spreadsheet_import_id"
     t.datetime "updated_at", null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
     t.index ["role"], name: "index_users_on_role"
+    t.index ["spreadsheet_import_id"], name: "index_users_on_spreadsheet_import_id"
   end
 
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "sessions", "users"
   add_foreign_key "spreadsheet_imports", "users", column: "admin_id"
+  add_foreign_key "users", "spreadsheet_imports"
 end
