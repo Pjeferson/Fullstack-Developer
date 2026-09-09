@@ -1,24 +1,24 @@
 ## 1. Solid trifecta in development (four databases, same shape as production)
 
-- [ ] 1.1 Add a `development:` multi-database block to `config/database.yml` (`primary`/
+- [x] 1.1 Add a `development:` multi-database block to `config/database.yml` (`primary`/
   `cache`/`queue`/`cable`, mirroring `production:`'s shape exactly — local database names
   `umanni_development`/`_cache`/`_queue`/`_cable`, same `migrations_paths` as production), run
   `bin/rails db:create` and verify the three new databases exist, then `bin/rails db:schema:
   load:cache db:schema:load:queue db:schema:load:cable` and verify each role's tables landed in
   its own database with no changes to `db/{cache,queue,cable}_schema.rb` (`git status` clean on
   those files)
-- [ ] 1.2 In `config/environments/development.rb`, set `config.cache_store =
+- [x] 1.2 In `config/environments/development.rb`, set `config.cache_store =
   :solid_cache_store`, `config.active_job.queue_adapter = :solid_queue`, and
   `config.solid_queue.connects_to = { database: { writing: :queue } }` (matching
   `production.rb`); in `config/cable.yml`, change `development:` from `adapter: async` to
   `adapter: solid_cable` with the same `connects_to`/`polling_interval`/`message_retention` as
   `production:`
-- [ ] 1.3 Restore `jobs: bin/jobs` to `Procfile.dev` and verify `bin/rails runner 'puts
+- [x] 1.3 Restore `jobs: bin/jobs` to `Procfile.dev` and verify `bin/rails runner 'puts
   Rails.cache.class; puts Rails.application.config.active_job.queue_adapter'` reports the Solid
   adapters, and a job enqueued via `bin/rails runner` in development is picked up (verify via a
   `SolidQueue::Job` row rather than `bin/dev`, since this sandbox can't keep `bin/dev`'s full
   Procfile cluster running — see the branch's own verification notes)
-- [ ] 1.4 Update `openspec/config.yaml`'s `context:` — the "development keeps them lightweight
+- [x] 1.4 Update `openspec/config.yaml`'s `context:` — the "development keeps them lightweight
   ... to avoid needing extra local databases" sentence is now false; replace it with the actual
   setup (same Solid adapters and the same four-database shape as production), so future
   AI-driven artifacts don't plan against a stale assumption
