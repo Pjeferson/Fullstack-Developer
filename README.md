@@ -122,7 +122,7 @@ bin/brakeman   # Ruby security scan
 npm run check  # TypeScript type-check
 ```
 
-## Branch & task sequencing
+## Branch & task sequencing - Initial plan
 
 The order below tracks real dependency, not just convenience — each phase only makes sense once the previous one exists. Branches on the same level are logically independent, which matters for how PRs get sequenced even working solo, since it keeps changes atomic and reviewable.
 
