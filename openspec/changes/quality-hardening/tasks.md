@@ -130,3 +130,17 @@
   `ImportProgressModal`'s `onClose` reverts to a plain `() => void` - it no longer needs to hand
   back its last-seen `summary`
 - [x] 11.4 `npm run check` and `bin/rails test` both clean
+
+## 12. Post-review increment: two more entries under Implementation Decisions
+
+- [x] 12.1 Renamed the section from "Implementation Decisions" to "Deliberate Implementation
+  Decisions" (the user's own retitling)
+- [x] 12.2 Added "Explicit Side Effects Over Model Callbacks" — documents that
+  `Imports::ProgressBroadcaster`/`Dashboard::StatsBroadcaster` are called explicitly from the
+  job/controller, never from an `after_save`/`after_update_commit` model callback, and why
+- [x] 12.3 Added "Simple, Hand-Rolled JSON Over a Serialization Layer" — documents that every
+  JSON shape (`User#profile_json`, `SpreadsheetImport#summary_json`, `users_json`, `imports_json`)
+  is a plain `as_json`, no serialization gem in use (`jbuilder` sits in the `Gemfile` unused), and
+  that a larger app would reach for a dedicated tool instead
+- [x] 12.4 Wording drafted and iterated in chat before being applied, same process as every other
+  README addition in this project

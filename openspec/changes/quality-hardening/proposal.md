@@ -45,6 +45,10 @@ frontend component.
   upload, never from clicking a history row (a past import's row already shows everything the
   modal would). This replaces item 8's local-patch-on-close with a plain server reload on close —
   see design.md's last two "Post-Review Increment" sections for why the reload is safe now.
+- **Added on review**: two more entries under the README's "Deliberate Implementation Decisions"
+  (renamed from "Implementation Decisions") — explaining why broadcasts are called explicitly
+  rather than from a model callback, and why this app's JSON is hand-rolled rather than built
+  through a serialization gem.
 
 Out of scope: closing the coverage gap itself, a JS test runner for the new validation code
 (Playwright remains the next branch), and any change to what the backend actually accepts or

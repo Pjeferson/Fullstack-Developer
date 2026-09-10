@@ -284,6 +284,32 @@ metadata `reset: true` instead of the usual merge/append markers, so `InertiaRai
 `onClose` reverts to a plain `() => void` - it no longer needs to hand back its last-seen
 `summary` for a caller to patch locally.
 
+## Post-Review Increment: two more Deliberate Implementation Decisions entries
+
+Requested directly by the user: two more entries for the README section added in item 5 (renamed
+along the way from "Implementation Decisions" to "Deliberate Implementation Decisions", per their
+own preference for the title), documenting decisions this codebase already reflects but had
+never written down:
+
+- **Explicit side effects over model callbacks** — `Imports::ProgressBroadcaster` and
+  `Dashboard::StatsBroadcaster` are called explicitly from the job/controller that changes state,
+  never from an `after_save`/`after_update_commit` callback (see the `import-progress` and
+  `dashboard-realtime` archived changes, which made this call originally). First drafted with a
+  sentence narrating that a callback was tried and dropped for the import broadcaster
+  specifically - removed on the user's feedback that this read oddly; the final wording states
+  the decision and its reasoning directly, without the "first draft was X" framing.
+- **Simple, hand-rolled JSON over a serialization layer** — every JSON shape in this app
+  (`profile_json`, `summary_json`, `users_json`, `imports_json`) is a plain `as_json`, no
+  serialization gem in use despite `jbuilder` sitting unused in the `Gemfile`. First drafted with
+  an explicit "this wasn't a knowledge gap" disclaimer (mirroring the Input Validation entry's
+  own framing) - removed on the user's feedback that it read as unnecessarily defensive here;
+  the final wording simply notes that a production app of larger scope would reach for a
+  dedicated tool (`Blueprinter` or similar) instead, without denying a knowledge gap that wasn't
+  raised as a question in the first place.
+
+Both entries were drafted and shown for review before being applied, same process as every prior
+README addition in this project.
+
 ## Migration Plan
 
 No schema/data migrations. All changes are additive tooling (SimpleCov, Zod), refactors with
