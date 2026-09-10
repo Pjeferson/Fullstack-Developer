@@ -16,12 +16,13 @@ the next branch throughout this project and is requested directly now. No capabi
   actual `test/system/` directory.
 - Adds the `playwright` npm package (pinned to the exact version `playwright-ruby-client`
   expects) as a devDependency, plus the Chromium browser binary it drives.
-- Switches `config/cable.yml`'s `test` environment from the `test` adapter (in-memory, assertion-
-  only — doesn't deliver over a real WebSocket) to `async` (a real, in-process pub/sub that a
-  browser's actual WebSocket connection can receive from) — necessary for system tests to observe
-  live updates (import progress, dashboard stats) the way a real user would. Existing
-  `assert_broadcast_on`/`assert_has_stream` tests are unaffected: `ActionCable::TestHelper`
-  swaps in its own test adapter for the duration of those tests regardless of `cable.yml`.
+- `ApplicationSystemTestCase` switches Action Cable to the `async` adapter (a real, in-process
+  pub/sub a browser's actual WebSocket connection can receive from) for the duration of each
+  system test, via `ActionCable::Server::Base`'s own public `config`/`restart` API — necessary
+  for system tests to observe live updates (import progress, dashboard stats) the way a real user
+  would. `config/cable.yml` itself stays on Rails' own default (`test`, built for
+  `assert_broadcast_on`/`assert_has_stream`) rather than changing file-wide for a switch only
+  system tests need — see design.md for why a global config change was tried first and reverted.
 - 6 system test files under `test/system/`, one per page/flow as requested: sign-in, visitor
   registration, forgot/reset password (one file — both pages, one continuous journey), the full
   admin User CRUD flow, the full spreadsheet import flow (upload → live progress → history), and
@@ -57,7 +58,8 @@ None — `skip_specs: true`; see design.md for the full rationale on each decisi
 
 - **Gemfile**: `capybara-playwright-driver` replaces `selenium-webdriver` in the `:test` group.
 - **package.json**: `playwright` devDependency, pinned.
-- **config/cable.yml**: `test` environment adapter `test` → `async`.
+- **config/cable.yml**: unchanged — the `async` switch is scoped to `ApplicationSystemTestCase`
+  at runtime instead (see design.md).
 - **New**: `test/application_system_test_case.rb`, `test/test_helpers/
   system_test_authentication_helper.rb`, `test/system/{sessions,registrations,passwords,
   profiles}_test.rb`, `test/system/admin/{users,spreadsheet_imports}_test.rb`.

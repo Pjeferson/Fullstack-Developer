@@ -19,6 +19,17 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
 
   driven_by :playwright
 
+  # config/cable.yml's test adapter stays "test" (the Rails default, built for
+  # ActionCable::TestHelper's assert_broadcast_on/assert_has_stream) - system tests are the one
+  # place that needs a real browser to actually receive a broadcast over its own WebSocket
+  # connection, so only this class switches to "async" (a real, in-process pub/sub), via
+  # ActionCable's own public config/restart API rather than a global config change or reaching
+  # into a private ivar.
+  setup do
+    ActionCable.server.config.cable = { "adapter" => "async" }
+    ActionCable.server.restart
+  end
+
   # Playwright's fill/type dispatches real DOM events and returns as soon as the browser has
   # processed them - it doesn't wait for React's own (async) state commit and re-render that
   # follows. Clicking a submit button immediately after filling a controlled input can race

@@ -84,26 +84,39 @@ still installs and runs headless correctly here, since the underlying libraries 
 be present). A real CI environment or a fresh machine may need `--with-deps` (or the equivalent
 apt packages) — noted in the new README section rather than assumed.
 
-### `config/cable.yml`: `test` environment adapter, `test` → `async`
+### Real Action Cable delivery for system tests, scoped to `ApplicationSystemTestCase` only
 
-```yaml
-test:
-  adapter: async
+The `test` adapter (`config/cable.yml`'s own default, unchanged) is an in-memory adapter built
+specifically for `ActionCable::TestHelper`'s `assert_broadcast_on`/`assert_has_stream` — it
+doesn't deliver messages over a real WebSocket connection at all, so a real browser subscribed
+via `useImportProgress`/`useDashboardStats` would never receive anything during a system test.
+`async` is a real, in-process pub/sub (no Redis/external process needed, same family as
+`solid_cable` conceptually) that *does* deliver over real WebSocket connections — system tests
+need it, nothing else does.
+
+First draft changed `config/cable.yml`'s `test` environment to `async` globally. Measured whether
+that actually cost the rest of the suite anything (three runs each way, `bin/rails test`): no
+difference (~9.2-10.3s either way) — every test that triggers a broadcast in this app already
+`include ActionCable::TestHelper`, which unconditionally replaces `ActionCable.server`'s pubsub
+with its own adapter for the duration of the test regardless of what `cable.yml` says (confirmed
+reading `actioncable-8.1.3.1/lib/action_cable/test_helper.rb`'s `before_setup`), so the global
+setting was inert for the existing suite either way. Changed anyway, on the user's own read that
+diverging from Rails' own default file-wide - even at zero measured cost - is a stranger thing to
+hand someone reading this repo than a change scoped to exactly where it's needed:
+
+```ruby
+class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
+  setup do
+    ActionCable.server.config.cable = { "adapter" => "async" }
+    ActionCable.server.restart
+  end
+end
 ```
 
-The `test` adapter (Rails' default scaffold choice) is an in-memory adapter built specifically
-for `ActionCable::TestHelper`'s `assert_broadcast_on`/`assert_has_stream` — it doesn't deliver
-messages over a real WebSocket connection at all, so a real browser subscribed via
-`useImportProgress`/`useDashboardStats` would never receive anything during a system test.
-`async` is a real, in-process pub/sub (no Redis/external process needed, same family as
-`solid_cable` conceptually) that *does* deliver over real WebSocket connections.
-
-Confirmed this doesn't break any existing channel/broadcaster test: reading
-`actioncable-8.1.3.1/lib/action_cable/test_helper.rb`, `ActionCable::TestHelper#before_setup`
-unconditionally replaces `ActionCable.server`'s pubsub with its own `SubscriptionAdapter::Test`
-instance for the duration of any test that includes the helper — regardless of what `cable.yml`
-configures. Every existing `assert_broadcast_on`/`assert_has_stream` test already runs against
-that swapped-in adapter, not the configured one, so this change has no effect on them.
+`config.cable=` and `restart` are both public API (`ActionCable::Server::Base#restart` is what
+Rails itself calls on code reload) — no reaching into a private `@pubsub` ivar. Runs before every
+system test rather than once for the class; confirmed by hand this doesn't add meaningful
+overhead (repeated `bin/rails test:system` runs land in the same ~35-36s range before and after).
 
 ### Background jobs during system tests: `perform_enqueued_jobs`, not a real worker
 
@@ -315,6 +328,7 @@ client message and that the page never navigates away from the form, rather than
 
 ## Migration Plan
 
-No schema/data migrations. `cable.yml`'s test-adapter change and the Gemfile swap
-(`selenium-webdriver` → `capybara-playwright-driver`) are both easily reverted; the new test
-files are purely additive. Rollback for any item is a plain revert.
+No schema/data migrations. The Gemfile swap (`selenium-webdriver` →
+`capybara-playwright-driver`) is easily reverted; the new test files are purely additive; the
+Action Cable adapter switch lives entirely in `ApplicationSystemTestCase`, so there's nothing
+outside `test/` to roll back. Rollback for any item is a plain revert.

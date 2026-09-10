@@ -11,9 +11,12 @@
   `include ActiveJob::TestHelper` (needed for `perform_enqueued_jobs` - not pulled in by
   `ActionDispatch::SystemTestCase` on its own), and a shared `settle_after_fill!` helper (see
   "Post-implementation findings" in design.md for why)
-- [x] 1.5 `config/cable.yml`: `test` environment adapter `test` → `async`; confirmed existing
-  channel/broadcaster tests (`assert_broadcast_on`/`assert_has_stream`) stay green (they use
-  `ActionCable::TestHelper`'s own swapped-in adapter regardless — see design.md)
+- [x] 1.5 `ApplicationSystemTestCase` switches Action Cable to `async` for its own tests only, via
+  a `setup` block calling `ActionCable::Server::Base`'s public `config`/`restart` API -
+  `config/cable.yml` stays on Rails' default (`test`) unchanged. Revised from a first draft that
+  changed `cable.yml` globally: measured no cost to the rest of the suite either way (every
+  broadcast-triggering test already uses `ActionCable::TestHelper`, which overrides regardless of
+  `cable.yml`), but scoped it anyway on review — see design.md
 
 ## 2. Shared system-test infrastructure
 

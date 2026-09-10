@@ -7,10 +7,7 @@ development:
   message_retention: 1.day
 
 test:
-  # "test" is only for ActionCable::TestHelper's assert_broadcast_on/assert_has_stream (it
-  # swaps in its own adapter regardless of this setting) - "async" is what actually delivers
-  # over a real WebSocket, which system tests need to observe live updates in a real browser.
-  adapter: async
+  adapter: test
 
 production:
   adapter: solid_cable
