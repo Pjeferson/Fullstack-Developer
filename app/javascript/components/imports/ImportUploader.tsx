@@ -1,4 +1,4 @@
-import { FormEvent } from 'react'
+import { FormEvent, useRef } from 'react'
 import { useForm } from '@inertiajs/react'
 
 import Button from '@/components/ui/Button'
@@ -22,6 +22,13 @@ export default function ImportUploader({ onUploaded }: Props) {
   // always has one - the cast just widens useValidation's input type to match useForm's, the
   // schema still rejects a null file at runtime same as before (see schemas/index.ts).
   const { errors: clientErrors, isValid, touch, touchAll } = useValidation(importUploadSchema, data as { file: File })
+  // <input type="file"> is uncontrolled - reset() below only clears Inertia's `data.file`, it
+  // can't touch the native input's own value, so without this ref the browser's file picker
+  // keeps showing the previous filename after a successful upload while `data.file` is already
+  // null again. Clearing it here keeps what's visually selected in sync with what would actually
+  // be submitted - otherwise a second upload attempted without reselecting a file fails with
+  // "can't be blank" (caught client-side now, but the mismatch predates that check).
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
@@ -32,6 +39,7 @@ export default function ImportUploader({ onUploaded }: Props) {
     post('/admin/spreadsheet_imports', {
       onSuccess: (page) => {
         reset()
+        if (fileInputRef.current) fileInputRef.current.value = ''
         onUploaded(page.props.imports as AdminImportListItem[])
       },
     })
@@ -45,6 +53,7 @@ export default function ImportUploader({ onUploaded }: Props) {
             CSV or XLSX file
           </label>
           <input
+            ref={fileInputRef}
             id="file"
             type="file"
             accept=".csv,.xlsx"

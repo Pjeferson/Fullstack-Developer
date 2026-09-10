@@ -95,3 +95,38 @@
   `if (!isValid) { touchAll(); return }`
 - [x] 9.4 `npm run check` and `bin/rails test` both clean; left manual browser verification to
   the user for this increment, per their request
+
+## 10. Post-review increment: fix a stale native file input after a successful upload
+
+- [x] 10.1 Bug found by the user testing item 9: intermittently, uploading appeared to fail
+  instantly with `"can't be blank"` and nothing was processed
+- [x] 10.2 Root cause: `<input type="file">` is uncontrolled - `reset()` in `onSuccess` only
+  clears Inertia's `data.file` state, it can't touch the native input's own value. After a
+  successful upload the browser's file picker kept showing the previous filename while
+  `data.file` was already `null` again; clicking Upload again without reselecting a file then
+  failed immediately on the now-blank `data.file` (item 9's client check catches it before a
+  request even goes out, but the underlying state mismatch predates that check)
+- [x] 10.3 Added a `ref` to the file input in `ImportUploader.tsx`; `onSuccess` now also sets
+  `fileInputRef.current.value = ''` alongside `reset()`, keeping the native picker in sync with
+  the form state
+- [x] 10.4 `npm run check` and `bin/rails test` both clean
+
+## 11. Post-review increment: restrict the progress modal to fresh uploads, reload on close
+
+- [x] 11.1 Revised in conversation: the progress modal shouldn't open for every history row
+  clicked, only automatically when an import starts - a past import's row already shows
+  everything the modal would (status, progress, succeeded/failed counts), so there was no real
+  use case for opening it after the fact
+- [x] 11.2 Removed `onSelect` from `ImportRow`, `ImportCard`, and `ImportHistoryTable` - history
+  rows are now read-only; `admin/spreadsheet_imports/index.tsx` only ever sets `selectedImport`
+  from `handleUploaded`, right after a fresh upload
+- [x] 11.3 This makes item 8's local-patch-on-close approach unnecessary complexity: since the
+  modal only ever shows the just-uploaded import (always at the top of the newest-first history),
+  closing it can safely reload from the server and land back on page 1 - that's exactly what page
+  1 already contains. `handleCloseProgressModal` now calls
+  `router.reload({ only: ['imports'], reset: ['imports'] })`; `reset` tells
+  `InertiaRails.scroll`/`PropsResolver` to send `imports` back as a plain replacement instead of
+  an appended page (confirmed by reading `props_resolver.rb`), so this doesn't duplicate rows.
+  `ImportProgressModal`'s `onClose` reverts to a plain `() => void` - it no longer needs to hand
+  back its last-seen `summary`
+- [x] 11.4 `npm run check` and `bin/rails test` both clean

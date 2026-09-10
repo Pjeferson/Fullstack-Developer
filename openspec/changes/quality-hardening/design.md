@@ -168,12 +168,15 @@ this file is already being touched for validation.
   `Imports::ParserFactory` does server-side; a `.csv`-renamed non-CSV file passes the client
   check and still gets a real backend check on upload, so this narrows the window for showing an
   error early without weakening what's actually enforced.
-- **[This increment wasn't manually verified in a real browser]** → Every other item in this
-  change was; this one was left for the user to test themselves, at their request.
+- **[This increment wasn't manually verified in a real browser]** → It since was, by the user -
+  and that testing surfaced a real bug (a stale native file input after a successful upload), now
+  fixed; see "Post-Review Increment: fix a stale native file input after a successful upload".
 
 ## Post-Review Increment: refresh the import row on modal close
 
-Noticed during review, not part of the original six items: an import's row in
+**Superseded by "Post-Review Increment: restrict the progress modal to fresh uploads, reload on
+close" below** - kept here for the record of what was tried and why, not as the current
+behavior. Noticed during review, not part of the original six items: an import's row in
 `admin/spreadsheet_imports/index.tsx`'s history table kept showing whatever it looked like when
 the page/list loaded (e.g. "Pending"), even right after an admin watched it reach "Completed"
 live inside `ImportProgressModal` — closing the modal left the stale row behind, since the
@@ -232,6 +235,54 @@ Wired the same way as every other form in this change: `onBlur={() => touch('fil
 **Left unverified in a real browser for this increment** - `npm run check` and `bin/rails test`
 both stayed clean, but the user asked to test this one manually themselves rather than have it
 checked here.
+
+## Post-Review Increment: fix a stale native file input after a successful upload
+
+Found by the user manually testing the increment above: uploads intermittently appeared to fail
+instantly with `"can't be blank"`, processing nothing.
+
+Root cause: `<input type="file">` is uncontrolled - `reset()` in `ImportUploader`'s `onSuccess`
+only clears Inertia's `data.file` state, it has no way to touch the native input's own value
+(React can't set a file input's `value` at all, for security reasons browsers enforce). After a
+successful upload, the browser's file picker kept visually showing the previous filename while
+`data.file` was already `null` again internally - a mismatch invisible to the admin. Attempting a
+second upload without reselecting a file then failed immediately: the previous increment's client
+check (correctly) caught the null `data.file` and blocked the submission before a request even
+went out, but the underlying state mismatch predates that check and would have produced the same
+outcome via a real round trip before it existed too.
+
+Fix: a `ref` on the file input; `onSuccess` now also sets `fileInputRef.current.value = ''`
+alongside `reset()`, so the native picker's displayed state and the form's actual state can't
+drift apart again.
+
+## Post-Review Increment: restrict the progress modal to fresh uploads, reload on close
+
+Revised in conversation, replacing the "refresh the import row on modal close" increment above.
+The premise there was that the progress modal could be opened from any row in the history table,
+so closing it had to patch whatever row was open without disturbing the admin's scroll position.
+Reconsidered: a past import's row already shows everything the modal would (status, progress,
+succeeded/failed counts) - there was never a real use case for reopening it after the fact, only
+for watching a just-started one live. So `onSelect` came out of `ImportRow`, `ImportCard`, and
+`ImportHistoryTable` entirely; `admin/spreadsheet_imports/index.tsx` only ever sets
+`selectedImport` from `handleUploaded`, right after a fresh upload.
+
+That constraint removes the reason the local-patch approach existed. The modal now only ever
+shows the import that was *just* created, which - given the newest-first ordering - is always
+sitting at the very top of the history, i.e. exactly what page 1 of it already contains. Closing
+the modal can safely reload from the server and land back on page 1, since that's not a loss of
+position at all in this scenario:
+
+```ts
+router.reload({ only: [ 'imports' ], reset: [ 'imports' ] })
+```
+
+`reset` (not just `only`) is what makes this safe rather than duplicating rows - confirmed by
+reading `inertia_rails`'s `props_resolver.rb`: the client sends an `X-Inertia-Reset` header
+listing this prop, the server checks `reset_keys.include?(path)` and marks that prop's scroll
+metadata `reset: true` instead of the usual merge/append markers, so `InertiaRails.scroll` sends
+`imports` back as a plain replacement rather than another page to append. `ImportProgressModal`'s
+`onClose` reverts to a plain `() => void` - it no longer needs to hand back its last-seen
+`summary` for a caller to patch locally.
 
 ## Migration Plan
 

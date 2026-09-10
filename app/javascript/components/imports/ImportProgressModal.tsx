@@ -8,18 +8,14 @@ import { AdminImportListItem, SpreadsheetImportSummary } from '@/types'
 
 type Props = {
   spreadsheetImport: AdminImportListItem | null // null = closed
-  // Hands back whatever this modal's live subscription last saw, so the caller can patch that
-  // row in the history list - the row otherwise stays exactly as it was when the page loaded,
-  // even after the admin watches it change live in here. `null` only if the modal never had
-  // anything to show in the first place.
-  onClose: (summary: SpreadsheetImportSummary | null) => void
+  onClose: () => void
 }
 
-// Replaces the old dedicated admin/spreadsheet_imports/show.tsx page - opened from a row in the
-// import history (seeded from that row's already-loaded data) or right after an upload (seeded
-// from imports[0] - see ImportUploader/design.md). Subscribes over the same
-// SpreadsheetImportChannel/useImportProgress the old page used; useImportProgress(null, ...)
-// while closed skips subscribing entirely (see useChannel).
+// Replaces the old dedicated admin/spreadsheet_imports/show.tsx page - opens automatically right
+// after a fresh upload (seeded from imports[0] - see ImportUploader/design.md), never from
+// clicking a history row. Subscribes over the same SpreadsheetImportChannel/useImportProgress the
+// old page used; useImportProgress(null, ...) while closed skips subscribing entirely (see
+// useChannel).
 export default function ImportProgressModal({ spreadsheetImport, onClose }: Props) {
   const [ summary, setSummary ] = useState<SpreadsheetImportSummary | null>(spreadsheetImport)
 
@@ -43,7 +39,7 @@ export default function ImportProgressModal({ spreadsheetImport, onClose }: Prop
   return (
     <Modal
       open={spreadsheetImport !== null}
-      onClose={() => onClose(summary)}
+      onClose={onClose}
       title={spreadsheetImport?.filename ?? 'Import status'}
     >
       <div className="mb-4">

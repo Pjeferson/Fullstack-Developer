@@ -7,17 +7,13 @@ function formatDate(value: string) {
 
 type Props = {
   spreadsheetImport: AdminImportListItem
-  onSelect: (spreadsheetImport: AdminImportListItem) => void
 }
 
-// Desktop table row (md and up) - the whole row opens the progress modal, seeded from this row's
-// already-loaded data (no separate fetch - see design.md).
-export default function ImportRow({ spreadsheetImport, onSelect }: Props) {
+// Desktop table row (md and up) - read-only, every column the progress modal would otherwise
+// show is already visible here. See ImportHistoryTable.
+export default function ImportRow({ spreadsheetImport }: Props) {
   return (
-    <tr
-      className="cursor-pointer border-b border-border hover:bg-background"
-      onClick={() => onSelect(spreadsheetImport)}
-    >
+    <tr className="border-b border-border">
       <td className="py-2 pr-4">{spreadsheetImport.filename}</td>
       <td className="py-2 pr-4">
         <ImportStatusBadge status={spreadsheetImport.status} />

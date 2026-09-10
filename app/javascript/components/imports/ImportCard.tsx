@@ -7,22 +7,17 @@ function formatDate(value: string) {
 
 type Props = {
   spreadsheetImport: AdminImportListItem
-  onSelect: (spreadsheetImport: AdminImportListItem) => void
 }
 
-// Mobile stacked card (below md) - same data and behavior as ImportRow.
-export default function ImportCard({ spreadsheetImport, onSelect }: Props) {
+// Mobile stacked card (below md) - read-only, same data as ImportRow. See ImportHistoryTable.
+export default function ImportCard({ spreadsheetImport }: Props) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect(spreadsheetImport)}
-      className="flex w-full items-center justify-between gap-3 border-b border-border py-3 text-left"
-    >
+    <div className="flex items-center justify-between gap-3 border-b border-border py-3">
       <div className="min-w-0">
         <p className="truncate font-medium text-text">{spreadsheetImport.filename}</p>
         <p className="text-sm text-text-muted">{formatDate(spreadsheetImport.created_at)}</p>
       </div>
       <ImportStatusBadge status={spreadsheetImport.status} />
-    </button>
+    </div>
   )
 }

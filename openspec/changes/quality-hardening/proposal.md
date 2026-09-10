@@ -37,6 +37,14 @@ frontend component.
 - **Added on review**: extends the client-side validation from item 6 to `ImportUploader`'s file
   field — the one required field that item missed, mirroring the same presence/format checks
   `Admin::SpreadsheetImportsController#create` already makes.
+- **Added on review**: fixes a real bug the user found testing the item above — the native file
+  input kept showing a stale filename after a successful upload (it's uncontrolled; `reset()`
+  can't touch it), so a second upload without reselecting a file silently failed. Now cleared via
+  a ref alongside `reset()`.
+- **Added on review**: the progress modal now only ever opens automatically right after a fresh
+  upload, never from clicking a history row (a past import's row already shows everything the
+  modal would). This replaces item 8's local-patch-on-close with a plain server reload on close —
+  see design.md's last two "Post-Review Increment" sections for why the reload is safe now.
 
 Out of scope: closing the coverage gap itself, a JS test runner for the new validation code
 (Playwright remains the next branch), and any change to what the backend actually accepts or
