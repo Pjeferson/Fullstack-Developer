@@ -146,6 +146,19 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_not_equal "", @user.reload.full_name
   end
 
+  test "a rejected avatar upload on update redirects back with an error" do
+    sign_in_as(@admin)
+
+    patch admin_user_path(@user), params: {
+      email_address: @user.email_address,
+      full_name: @user.full_name,
+      avatar_image: fixture_file_upload("not_an_image.txt", "text/plain")
+    }
+
+    assert_redirected_to admin_users_path
+    assert_not @user.reload.avatar_image.attached?
+  end
+
   test "a plain edit does not broadcast dashboard stats" do
     sign_in_as(@admin)
 

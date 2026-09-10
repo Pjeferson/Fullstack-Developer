@@ -46,7 +46,8 @@ Relevant existing state per item:
 - No dead frontend code.
 
 **Non-Goals:**
-- Actually closing the coverage gap (separate, later effort, confirmed).
+- Actually closing the coverage gap (separate, later effort, confirmed) — reversed on review; see
+  "Post-Review Increment: close the coverage gap to 100%".
 - A JS test runner or tests for the new validation code — Playwright remains the next branch.
 - Any change to what the backend accepts or rejects — client-side validation adds no new rules,
   it surfaces the existing ones earlier.
@@ -309,6 +310,27 @@ never written down:
 
 Both entries were drafted and shown for review before being applied, same process as every prior
 README addition in this project.
+
+## Post-Review Increment: close the coverage gap to 100%
+
+Requested directly by the user, reversing this change's own stated non-goal (item 1's coverage
+number was to be reported, not closed). The gap was small (99.16%, 473/477) and every uncovered
+line turned out to be a real, previously-untested branch rather than dead code:
+
+- `Admin::UsersController#update`'s `AvatarAssigner` rejection branch (`else` after the nested
+  `if`) had no test — `ProfilesController#update` already had the equivalent test
+  ("rejected avatar upload redirects back with an error"), just never mirrored onto the admin
+  controller's own `update` action.
+- `AttachRemoteAvatarJob`'s inner `rescue Net::OpenTimeout, Net::ReadTimeout; raise` — every other
+  branch of this job's rescue logic had a test (blocked URL, disallowed content type, missing
+  user), but not the one that re-raises specifically so `retry_on` can retry it instead of
+  recording a permanent `avatar_error`.
+- `Imports::Parser`'s two `raise NotImplementedError` bodies — the shared contract module
+  `CsvParser`/`XlsxParser` both override; nothing had ever exercised the contract itself. Added a
+  minimal class that includes the module without overriding either method, asserting both raise.
+
+No production code changed for this item — only new tests. `bin/rails test` reports 159 runs,
+100.00% line coverage (477/477); `bin/rubocop` and `bin/brakeman` stay clean.
 
 ## Migration Plan
 

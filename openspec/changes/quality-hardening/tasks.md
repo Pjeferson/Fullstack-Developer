@@ -144,3 +144,23 @@
   that a larger app would reach for a dedicated tool instead
 - [x] 12.4 Wording drafted and iterated in chat before being applied, same process as every other
   README addition in this project
+
+## 13. Post-review increment: close the coverage gap to 100%
+
+- [x] 13.1 Requested directly by the user, reversing item 1's original scope (report only,
+  closing gaps deferred) — now that the number was known (99.16%, 473/477), closed it
+- [x] 13.2 Identified the 4 uncovered lines via SimpleCov's `.resultset.json` merged across the
+  4 parallel test workers (a single worker's `coverage/index.html` alone undercounts, since
+  Minitest's `parallelize` splits tests across processes)
+- [x] 13.3 `Admin::UsersController#update`'s `AvatarAssigner` rejection branch — added "a
+  rejected avatar upload on update redirects back with an error" to
+  `admin/users_controller_test.rb`, mirroring the equivalent test already covering
+  `ProfilesController#update`
+- [x] 13.4 `AttachRemoteAvatarJob`'s `rescue Net::OpenTimeout, Net::ReadTimeout; raise` line —
+  added "a network timeout is retried instead of recorded as a permanent error", asserting the
+  job re-enqueues via `retry_on` instead of falling into the permanent-error `rescue StandardError`
+- [x] 13.5 `Imports::Parser`'s two `raise NotImplementedError` contract methods — added
+  `test/services/imports/parser_test.rb` with a minimal class that includes the module without
+  overriding either method
+- [x] 13.6 `bin/rails test` — 159 runs, 100.00% line coverage (477/477); `bin/rubocop`/
+  `bin/brakeman` clean

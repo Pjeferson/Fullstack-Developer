@@ -45,6 +45,18 @@ class AttachRemoteAvatarJobTest < ActiveJob::TestCase
     assert_match "unsupported content type", @user.avatar_error
   end
 
+  test "a network timeout is retried instead of recorded as a permanent error" do
+    SsrfFilter.stub :get, ->(*) { raise Net::OpenTimeout } do
+      assert_enqueued_with(job: AttachRemoteAvatarJob) do
+        AttachRemoteAvatarJob.perform_now(@user.id, "https://example.com/avatar.png")
+      end
+    end
+
+    @user.reload
+    assert_not @user.avatar_image.attached?
+    assert_nil @user.avatar_error
+  end
+
   test "discards the job when the user no longer exists" do
     assert_nothing_raised do
       AttachRemoteAvatarJob.perform_now(-1, "https://example.com/avatar.png")

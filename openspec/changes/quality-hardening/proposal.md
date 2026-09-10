@@ -49,6 +49,9 @@ frontend component.
   (renamed from "Implementation Decisions") — explaining why broadcasts are called explicitly
   rather than from a model callback, and why this app's JSON is hand-rolled rather than built
   through a serialization gem.
+- **Added on review**: closes the coverage gap item 1 explicitly deferred — 3 new tests bring
+  backend line coverage to 100% (477/477), each covering a real branch that was previously
+  untested rather than padding the number artificially.
 
 Out of scope: closing the coverage gap itself, a JS test runner for the new validation code
 (Playwright remains the next branch), and any change to what the backend actually accepts or
