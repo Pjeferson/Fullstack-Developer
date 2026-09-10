@@ -19,15 +19,15 @@ before building anything:
 ## Goals / Non-Goals
 
 **Goals:**
-- A real browser (Chromium via Playwright) exercising every page this app has, through
-  `ActionDispatch::SystemTestCase` — same `bin/rails test` entry point as every other test here.
+- A real browser (via Playwright, all three of its engines — see "Post-Implementation Findings")
+  exercising every page this app has, through `ActionDispatch::SystemTestCase` — same
+  `bin/rails test` entry point as every other test here.
 - Live Action Cable updates actually observable by the browser during a system test (not just
   assertable via `ActionCable::TestHelper`, which is already covered by existing channel tests).
 - One file per page/flow, matching how the user described the plan.
 
 **Non-Goals:**
 - CI wiring (no pipeline exists yet).
-- Multi-browser coverage.
 - Replacing or duplicating existing Minitest controller/model/job coverage — these tests check
   what a real user sees and clicks, not business-rule edge cases already covered elsewhere.
 
@@ -307,6 +307,43 @@ Task 5.3 was planned as "a mismatched confirmation shows an error" (implying the
 correct, intended behavior, just not what the task description assumed. The test now asserts the
 client message and that the page never navigates away from the form, rather than the server one.
 
+### Post-review: cross-browser support (Chromium, Firefox, WebKit)
+
+Requested directly by the user after asking what cross-browser Playwright coverage would take.
+`Capybara::Playwright::Driver`'s `browser_type:` option already accepts any of Playwright's three
+engines (`capybara-playwright-driver`'s `BrowserRunner` validates against exactly
+`%i(chromium firefox webkit)` - nothing Chromium-specific baked into the gem itself), so the only
+change needed was reading it from an env var instead of hardcoding `:chromium`:
+
+```ruby
+Capybara.register_driver(:playwright) do |app|
+  Capybara::Playwright::Driver.new(
+    app,
+    browser_type: ENV.fetch("BROWSER", "chromium").to_sym,
+    ...
+  )
+end
+```
+
+`npx playwright install` (no browser name argument) installs all three; `BROWSER=firefox` /
+`BROWSER=webkit` before `bin/rails test:system` selects the engine, defaulting to `chromium` -
+every invocation before this feature existed keeps working unchanged.
+
+Verified for real, not assumed: the full 16-test suite, run twice per engine for stability,
+passed cleanly on all three with no changes to `settle_after_fill!`'s timing or anything else -
+despite this app having already surfaced two real timing-sensitive races during Chromium-only
+stabilization (see above), neither reproduced on Firefox or WebKit in this run. That's a
+reassuring result, not a guarantee the same will hold as this suite grows - Playwright's Firefox
+and WebKit are each patched builds maintained by the Playwright project specifically for
+cross-browser testing, not identical to what a Chrome, Firefox, or Safari user actually runs
+(WebKit in particular has no Apple-proprietary pieces - it approximates Safari, not replaces
+testing on one for certainty there).
+
+No multi-project runner exists on this side the way `@playwright/test` has (`projects:` config
+running a suite against several browsers in one parallelized invocation with a unified report) -
+`capybara-playwright-driver`/Minitest has nothing equivalent, so running all three means three
+separate `bin/rails test:system` invocations today, not one.
+
 ## Risks / Trade-offs
 
 - **[The import test never observes genuine incremental progress]** → Accepted trade-off from
@@ -314,7 +351,11 @@ client message and that the page never navigates away from the form, rather than
   without pacing.
 - **[Browser binary install needed `--with-deps` skipped in this sandbox]** → A fresh machine or
   CI may need it (or the equivalent apt packages) to launch Chromium at all; documented in the
-  README rather than silently assumed to always work.
+  README rather than silently assumed to always work. Firefox and WebKit specifically flagged a
+  few additional missing shared libraries (`libevent`, `libgstreamer-plugins-bad1.0`, `libflite`,
+  `libavif`) on install in this same sandbox - both still ran and passed their full suite anyway,
+  but a fresh machine hitting the same warning should treat it the same way: install the deps
+  it names, or run `sudo npx playwright install-deps`.
 - **[No CI to actually run this suite automatically]** → Explicitly out of scope (no pipeline
   exists in this repo yet); these tests are runnable locally today, wiring them into CI is a
   separate, later effort.

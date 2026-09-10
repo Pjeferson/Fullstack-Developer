@@ -15,7 +15,8 @@ the next branch throughout this project and is requested directly now. No capabi
   `@playwright/test`) — replaces the unused `selenium-webdriver` gem, which was never wired to an
   actual `test/system/` directory.
 - Adds the `playwright` npm package (pinned to the exact version `playwright-ruby-client`
-  expects) as a devDependency, plus the Chromium browser binary it drives.
+  expects) as a devDependency, plus all three browser engines it drives (Chromium, Firefox,
+  WebKit).
 - `ApplicationSystemTestCase` switches Action Cable to the `async` adapter (a real, in-process
   pub/sub a browser's actual WebSocket connection can receive from) for the duration of each
   system test, via `ActionCable::Server::Base`'s own public `config`/`restart` API — necessary
@@ -36,14 +37,15 @@ the next branch throughout this project and is requested directly now. No capabi
   only exposed `current_user`. 10 flash messages across sign-in, forgot/reset password had
   silently never rendered, for any user, ever; no existing test asserted on the rendered text to
   catch it. See design.md's "Post-Implementation Findings" for the full trace and fix.
+- **Added on review**: cross-browser support. `BROWSER` env var (`chromium`/`firefox`/`webkit`,
+  defaulting to `chromium`) selects which engine `ApplicationSystemTestCase`'s driver launches —
+  the full 16-test suite is verified green on all three (twice each, for stability).
 
 ## Out of scope
 
 - Running these in CI (no CI pipeline exists yet in this repo) — this change only makes the suite
   runnable locally via `bin/rails test:system` (system tests are excluded from plain
   `bin/rails test` by Rails' own default).
-- Cross-browser coverage (Firefox/WebKit) — Chromium only, consistent with what's already been
-  used for manual verification throughout this project.
 - Visual regression / screenshot-diffing.
 
 ## Capabilities

@@ -4,11 +4,13 @@ require "capybara/playwright"
 # playwright_cli_executable_path points at the local node_modules install directly rather than
 # the gem's own "npx playwright" default - avoids npx's resolution/download overhead on every
 # browser launch, and pins exactly which install runs. HEADLESS=false lets a real run be watched
-# locally (e.g. `HEADLESS=false bin/rails test test/system/sessions_test.rb`).
+# locally (e.g. `HEADLESS=false bin/rails test test/system/sessions_test.rb`). BROWSER selects
+# which of Playwright's three engines drives the suite - chromium (Chrome/Edge), firefox, or
+# webkit (Safari's engine) - defaulting to chromium, same as every run before this existed.
 Capybara.register_driver(:playwright) do |app|
   Capybara::Playwright::Driver.new(
     app,
-    browser_type: :chromium,
+    browser_type: ENV.fetch("BROWSER", "chromium").to_sym,
     headless: ENV["HEADLESS"] != "false",
     playwright_cli_executable_path: Rails.root.join("node_modules/.bin/playwright").to_s
   )

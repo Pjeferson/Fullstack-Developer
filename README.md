@@ -102,16 +102,24 @@ The test database (`umanni_test`) runs against the same Dockerized Postgres inst
 
 ### System tests (Playwright)
 
-One-time setup:
+One-time setup — installs all three of Playwright's browser engines (Chromium, Firefox, WebKit):
 
 ```bash
-npx playwright install chromium
+npx playwright install
 ```
 
 Then, since `bin/rails test` skips `test/system/` by default:
 
 ```bash
 bin/rails test:system
+```
+
+This runs against Chromium by default. Run the same suite against each engine with `BROWSER`:
+
+```bash
+BROWSER=chromium bin/rails test:system
+BROWSER=firefox bin/rails test:system
+BROWSER=webkit bin/rails test:system
 ```
 
 ## Linting & security

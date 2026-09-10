@@ -100,3 +100,14 @@
 - [x] 10.3 `npm run check` / `bin/rubocop` / `bin/brakeman` — clean
 - [x] 10.4 README: new "System tests (Playwright)" section (`bin/rails test:system`, the one-time
   `npx playwright install chromium` step, `HEADLESS=false`, a note about `--with-deps`)
+
+## 11. Post-review: cross-browser support (Chromium, Firefox, WebKit)
+
+- [x] 11.1 `npx playwright install firefox webkit` - both installed despite a missing-shared-libs
+  warning in this sandbox (see design.md's Risks)
+- [x] 11.2 `test/application_system_test_case.rb`: `browser_type:` now reads `ENV["BROWSER"]`
+  (default `chromium`) instead of hardcoding `:chromium`
+- [x] 11.3 Verified for real: full 16-test suite, twice each, green on chromium, firefox, and
+  webkit - no timing/`settle_after_fill!` changes needed
+- [x] 11.4 README: `npx playwright install` (all three, no longer chromium-only), `BROWSER=...`
+  usage for each engine
