@@ -59,6 +59,12 @@ reflecting this.
    bin/rails db:prepare
    ```
 
+4. Seed a couple of known-password accounts (see [Accessing the app](#accessing-the-app) below):
+
+   ```bash
+   bin/rails db:seed
+   ```
+
 ## Running the app
 
 ```bash
@@ -70,8 +76,21 @@ This uses [Foreman](https://github.com/ddollar/foreman) (or `overmind`/`hivemind
 * `web` — Rails server
 * `css` — Tailwind watcher
 * `vite` — Vite dev server (serves the React/Inertia frontend)
+* `jobs` — Solid Queue worker (spreadsheet imports)
 
 The app is then available at http://localhost:3000.
+
+## Accessing the app
+
+`bin/rails db:seed` (above) creates two accounts, both with password `password`:
+
+| Email | Role | Sees |
+|---|---|---|
+| `admin@example.com` | admin | User admin dashboard, user CRUD, spreadsheet import |
+| `user@example.com` | default | Their own profile only |
+
+A new visitor can also self-register from the sign-in page's "Sign up" link — that always
+creates a `default`-role User, the same as `user@example.com` above.
 
 ## Running tests
 
@@ -83,26 +102,24 @@ The test database (`umanni_test`) runs against the same Dockerized Postgres inst
 
 ### System tests (Playwright)
 
-`bin/rails test` skips `test/system/` by design (Rails' own default) — run those separately:
-
-```bash
-bin/rails test:system
-```
-
-One-time setup, before the first run:
+One-time setup:
 
 ```bash
 npx playwright install chromium
 ```
 
-If that fails to launch on a fresh machine or in CI, it's almost always missing OS-level
-libraries Chromium needs — re-run with `--with-deps` (needs root/sudo) instead, or install the
-equivalent system packages by hand.
-
-By default the browser runs headless. To watch a run locally instead:
+Then, since `bin/rails test` skips `test/system/` by default:
 
 ```bash
-HEADLESS=false bin/rails test:system
+bin/rails test:system
+```
+
+## Linting & security
+
+```bash
+bin/rubocop    # Ruby style
+bin/brakeman   # Ruby security scan
+npm run check  # TypeScript type-check
 ```
 
 ## Branch & task sequencing
