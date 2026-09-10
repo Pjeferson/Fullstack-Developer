@@ -59,6 +59,12 @@ reflecting this.
    bin/rails db:prepare
    ```
 
+4. Seed a couple of known-password accounts (see [Accessing the app](#accessing-the-app) below):
+
+   ```bash
+   bin/rails db:seed
+   ```
+
 ## Running the app
 
 ```bash
@@ -70,8 +76,21 @@ This uses [Foreman](https://github.com/ddollar/foreman) (or `overmind`/`hivemind
 * `web` — Rails server
 * `css` — Tailwind watcher
 * `vite` — Vite dev server (serves the React/Inertia frontend)
+* `jobs` — Solid Queue worker (spreadsheet imports)
 
 The app is then available at http://localhost:3000.
+
+## Accessing the app
+
+`bin/rails db:seed` (above) creates two accounts, both with password `password`:
+
+| Email | Role | Sees |
+|---|---|---|
+| `admin@example.com` | admin | User admin dashboard, user CRUD, spreadsheet import |
+| `user@example.com` | default | Their own profile only |
+
+A new visitor can also self-register from the sign-in page's "Sign up" link — that always
+creates a `default`-role User, the same as `user@example.com` above.
 
 ## Running tests
 
@@ -81,7 +100,37 @@ bin/rails test
 
 The test database (`umanni_test`) runs against the same Dockerized Postgres instance as development — no extra setup needed.
 
-## Branch & task sequencing
+### System tests (Playwright)
+
+One-time setup — installs all three of Playwright's browser engines (Chromium, Firefox, WebKit):
+
+```bash
+npx playwright install
+```
+
+Then, since `bin/rails test` skips `test/system/` by default:
+
+```bash
+bin/rails test:system
+```
+
+This runs against Chromium by default. Run the same suite against each engine with `BROWSER`:
+
+```bash
+BROWSER=chromium bin/rails test:system
+BROWSER=firefox bin/rails test:system
+BROWSER=webkit bin/rails test:system
+```
+
+## Linting & security
+
+```bash
+bin/rubocop    # Ruby style
+bin/brakeman   # Ruby security scan
+npm run check  # TypeScript type-check
+```
+
+## Branch & task sequencing - Initial plan
 
 The order below tracks real dependency, not just convenience — each phase only makes sense once the previous one exists. Branches on the same level are logically independent, which matters for how PRs get sequenced even working solo, since it keeps changes atomic and reviewable.
 
@@ -152,10 +201,10 @@ Types used in this project:
 
 Example: `feat: add inertia rails for react frontend`
 
-## Deliberate Implementation Decisions
+## Open Improvements
 
-Notes on deliberate trade-offs made in this codebase — recorded here so they read as considered
-choices, not gaps.
+Things this codebase doesn't do yet, named directly rather than left for someone else to find —
+each with what it would actually buy.
 
 ### Input Validation
 
@@ -170,27 +219,9 @@ Validation in this app lives at two layers, deliberately:
 - **Frontend**: Zod schemas mirror those same backend rules and validate a form as it's filled
   in, so most invalid input never reaches the server at all (see `app/javascript/schemas/`).
 
-**What's deliberately not here**: a structural schema-validation layer on the backend (e.g.
-`dry-schema`/`dry-validation`) sitting in front of `ActiveRecord`. This was considered and set
-aside for this submission — not an oversight. Rails' own strong params + model validations
-already give this app a real, enforced contract for every request (a field that isn't permitted
-literally cannot reach the model; a field that's permitted still has to pass its validations to
-be persisted), and every input path in this app is small and fully covered by tests. A dedicated
-schema layer becomes more valuable as an app's input surface grows more complex than this one's
-currently is — a trade-off made with that awareness, not without it.
-
-### Explicit Side Effects Over Model Callbacks
-
-Broadcasting an import's live progress over Action Cable (`Imports::ProgressBroadcaster`) and
-the dashboard's live stats (`Dashboard::StatsBroadcaster`) are both called explicitly from the
-job/controller that already changes the underlying state, not from a model callback
-(`after_save`/`after_update_commit`). Models in this app stay persistence + serialization only —
-a side effect like a broadcast (or a mailer) lives in its own service, invoked explicitly at the
-specific call sites where it's actually meant to happen, rather than as an invisible consequence
-of saving a record. Folded into a callback instead, nothing at an `import.update!(...)` call site
-would hint that saving also pushes a WebSocket message, and every other future caller of
-`update`/`save` on that model — a console session, a future admin action, a test — would
-broadcast too, wanted or not.
+Adding a structural schema-validation layer (`dry-schema`/`dry-validation` or similar) in front
+of `ActiveRecord` would give the backend an explicit, independent input contract of its own —
+decoupled from persistence, and easier to reason about as the input surface grows.
 
 ### Simple, Hand-Rolled JSON Over a Serialization Layer
 
@@ -201,8 +232,22 @@ small controller-level method for a list shape that layers on a couple of extra 
 (`ActiveModel::Serializer`, `Blueprinter`, `jsonapi-serializer`, or similar) — `jbuilder` sits in
 the `Gemfile` as Rails' own default, but nothing in this app actually uses it.
 
-It's the simplest option that works at this app's current size: every JSON shape here is small,
-has exactly one caller, and is already covered by tests. A production app with meaningfully more
-shapes or more reuse across endpoints would reach for a dedicated tool instead — `Blueprinter` or
-similar — to keep them consistent; that's a scope call made for this submission, not a claim that
-hand-rolling is how this would stay done at a larger scale.
+Adopting a dedicated serialization tool (`Blueprinter` or similar) would keep JSON shapes
+consistent as they grow in number or get reused across more endpoints.
+
+### Docker Compose for the whole dev environment
+
+Running the full stack (Rails, Vite, Solid Queue) through `docker-compose.yml`, not just
+PostgreSQL, would mean no local Ruby or Node install is needed to run this app at all — anyone
+could get from a clean clone to a running app with one command.
+
+### ESLint
+
+Adding ESLint for the React/TypeScript side would enforce hooks rules, catch unused imports, and
+keep style consistent there the same way `rubocop` already does for the Ruby side.
+
+### Encrypting more sensitive User fields
+
+Encrypting `email_address` at rest with `ActiveRecord::Encryption` would reduce what's exposed
+if the database itself were ever compromised — currently only `password_digest` gets that
+protection, via `has_secure_password`'s bcrypt hashing.

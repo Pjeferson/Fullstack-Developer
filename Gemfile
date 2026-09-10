@@ -58,7 +58,9 @@ end
 group :test do
   # Use system testing [https://guides.rubyonrails.org/testing.html#system-testing]
   gem "capybara"
-  gem "selenium-webdriver"
+  # Playwright driver for Capybara/ActionDispatch::SystemTestCase, replacing selenium-webdriver -
+  # see openspec/changes/playwright-e2e/design.md
+  gem "capybara-playwright-driver"
 
   # Minitest 6 split Object#stub out of the core gem
   gem "minitest-mock"
