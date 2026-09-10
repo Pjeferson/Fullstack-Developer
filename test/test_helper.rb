@@ -7,6 +7,7 @@ require "rails/test_help"
 require "minitest/mock"
 require "inertia_rails/minitest"
 require_relative "test_helpers/session_test_helper"
+require_relative "test_helpers/system_test_authentication_helper"
 
 module ActiveSupport
   class TestCase

@@ -81,6 +81,30 @@ bin/rails test
 
 The test database (`umanni_test`) runs against the same Dockerized Postgres instance as development — no extra setup needed.
 
+### System tests (Playwright)
+
+`bin/rails test` skips `test/system/` by design (Rails' own default) — run those separately:
+
+```bash
+bin/rails test:system
+```
+
+One-time setup, before the first run:
+
+```bash
+npx playwright install chromium
+```
+
+If that fails to launch on a fresh machine or in CI, it's almost always missing OS-level
+libraries Chromium needs — re-run with `--with-deps` (needs root/sudo) instead, or install the
+equivalent system packages by hand.
+
+By default the browser runs headless. To watch a run locally instead:
+
+```bash
+HEADLESS=false bin/rails test:system
+```
+
 ## Branch & task sequencing
 
 The order below tracks real dependency, not just convenience — each phase only makes sense once the previous one exists. Branches on the same level are logically independent, which matters for how PRs get sequenced even working solo, since it keeps changes atomic and reviewable.
