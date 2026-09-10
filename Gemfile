@@ -69,6 +69,13 @@ group :test do
   gem "simplecov", require: false
 end
 
+group :benchmark do
+  # Used by script/performance/users_import_benchmark.rb - its own group (not
+  # development/test) so it's never auto-required by Bundler.require(*Rails.groups) at normal
+  # boot, only when the benchmark script explicitly requires it.
+  gem "benchmark-ips", require: false
+end
+
 gem "vite_rails", "~> 3.11"
 
 gem "inertia_rails-contrib", "~> 0.6.0"
