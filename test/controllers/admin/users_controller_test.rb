@@ -27,6 +27,23 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
     assert_inertia_props { |props| props[:users].map { |u| u[:id] }.include?(@user.id) }
   end
 
+  test "avatar attachments are eager-loaded, not queried per row (no N+1)" do
+    3.times do |i|
+      user = User.create!(email_address: "avatar#{i}@example.com", full_name: "Avatar #{i}", password: "password")
+      user.avatar_image.attach(fixture_file_upload("avatar.png", "image/png"))
+    end
+    sign_in_as(@admin)
+
+    attachment_queries = 0
+    callback = ->(*, payload) { attachment_queries += 1 if payload[:sql].include?("active_storage_attachments") }
+
+    ActiveSupport::Notifications.subscribed(callback, "sql.active_record") do
+      get admin_users_path
+    end
+
+    assert_operator attachment_queries, :<=, 2
+  end
+
   test "the user list includes created_at and updated_at, newest first" do
     sign_in_as(@admin)
     get admin_users_path
@@ -127,6 +144,19 @@ class Admin::UsersControllerTest < ActionDispatch::IntegrationTest
 
     assert_redirected_to admin_users_path
     assert_not_equal "", @user.reload.full_name
+  end
+
+  test "a rejected avatar upload on update redirects back with an error" do
+    sign_in_as(@admin)
+
+    patch admin_user_path(@user), params: {
+      email_address: @user.email_address,
+      full_name: @user.full_name,
+      avatar_image: fixture_file_upload("not_an_image.txt", "text/plain")
+    }
+
+    assert_redirected_to admin_users_path
+    assert_not @user.reload.avatar_image.attached?
   end
 
   test "a plain edit does not broadcast dashboard stats" do

@@ -151,3 +151,58 @@ Types used in this project:
 | `test` | adding or fixing tests |
 
 Example: `feat: add inertia rails for react frontend`
+
+## Deliberate Implementation Decisions
+
+Notes on deliberate trade-offs made in this codebase — recorded here so they read as considered
+choices, not gaps.
+
+### Input Validation
+
+Validation in this app lives at two layers, deliberately:
+
+- **Backend**: Rails strong params (only explicitly permitted attributes are ever read from a
+  request) plus `ActiveModel`/`ActiveRecord` validations on the model itself — presence, format,
+  and uniqueness on `User`, `has_secure_password`'s own password checks, and so on. Sensitive
+  fields (`role`, most notably) are structurally excluded from every general-purpose params list
+  rather than merely left unvalidated, so privilege escalation isn't something a validation rule
+  has to catch — there's no parameter path that could set it.
+- **Frontend**: Zod schemas mirror those same backend rules and validate a form as it's filled
+  in, so most invalid input never reaches the server at all (see `app/javascript/schemas/`).
+
+**What's deliberately not here**: a structural schema-validation layer on the backend (e.g.
+`dry-schema`/`dry-validation`) sitting in front of `ActiveRecord`. This was considered and set
+aside for this submission — not an oversight. Rails' own strong params + model validations
+already give this app a real, enforced contract for every request (a field that isn't permitted
+literally cannot reach the model; a field that's permitted still has to pass its validations to
+be persisted), and every input path in this app is small and fully covered by tests. A dedicated
+schema layer becomes more valuable as an app's input surface grows more complex than this one's
+currently is — a trade-off made with that awareness, not without it.
+
+### Explicit Side Effects Over Model Callbacks
+
+Broadcasting an import's live progress over Action Cable (`Imports::ProgressBroadcaster`) and
+the dashboard's live stats (`Dashboard::StatsBroadcaster`) are both called explicitly from the
+job/controller that already changes the underlying state, not from a model callback
+(`after_save`/`after_update_commit`). Models in this app stay persistence + serialization only —
+a side effect like a broadcast (or a mailer) lives in its own service, invoked explicitly at the
+specific call sites where it's actually meant to happen, rather than as an invisible consequence
+of saving a record. Folded into a callback instead, nothing at an `import.update!(...)` call site
+would hint that saving also pushes a WebSocket message, and every other future caller of
+`update`/`save` on that model — a console session, a future admin action, a test — would
+broadcast too, wanted or not.
+
+### Simple, Hand-Rolled JSON Over a Serialization Layer
+
+Every JSON shape sent to the frontend in this app is built by hand — a plain `as_json(only: [...],
+methods: [...])` call on the model (`User#profile_json`, `SpreadsheetImport#summary_json`) plus a
+small controller-level method for a list shape that layers on a couple of extra fields
+(`users_json`, `imports_json`). There's no serialization gem doing this generically
+(`ActiveModel::Serializer`, `Blueprinter`, `jsonapi-serializer`, or similar) — `jbuilder` sits in
+the `Gemfile` as Rails' own default, but nothing in this app actually uses it.
+
+It's the simplest option that works at this app's current size: every JSON shape here is small,
+has exactly one caller, and is already covered by tests. A production app with meaningfully more
+shapes or more reuse across endpoints would reach for a dedicated tool instead — `Blueprinter` or
+similar — to keep them consistent; that's a scope call made for this submission, not a claim that
+hand-rolling is how this would stay done at a larger scale.

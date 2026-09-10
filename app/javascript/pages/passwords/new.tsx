@@ -4,6 +4,8 @@ import { FormEvent, ReactNode } from 'react'
 import AuthLayout from '@/components/layout/AuthLayout'
 import Button from '@/components/ui/Button'
 import Input from '@/components/ui/Input'
+import { useValidation } from '@/hooks/useValidation'
+import { passwordsNewSchema } from '@/schemas'
 import { FlashData } from '@/types'
 
 export default function PasswordsNew() {
@@ -11,9 +13,14 @@ export default function PasswordsNew() {
   const { data, setData, post, processing } = useForm({
     email_address: '',
   })
+  const { errors: clientErrors, touch, touchAll, isValid } = useValidation(passwordsNewSchema, data)
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault()
+    if (!isValid) {
+      touchAll()
+      return
+    }
     post('/passwords')
   }
 
@@ -36,6 +43,8 @@ export default function PasswordsNew() {
           required
           value={data.email_address}
           onChange={(e) => setData('email_address', e.target.value)}
+          onBlur={() => touch('email_address')}
+          error={clientErrors.email_address}
         />
 
         <Button type="submit" disabled={processing} className="w-full">

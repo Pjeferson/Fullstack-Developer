@@ -3,7 +3,7 @@ module Admin
     before_action :set_user, only: %i[update destroy]
 
     def index
-      query = ::Admin::UsersQuery.new(before_id: params[:before_id])
+      query = ::Admin::UsersQuery.new(before_id: params[:before_id], scope: User.with_attached_avatar_image)
 
       render inertia: "admin/users/index", props: {
         users: InertiaRails.scroll(query.metadata) { users_json(query.records) },

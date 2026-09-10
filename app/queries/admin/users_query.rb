@@ -7,8 +7,12 @@ module Admin
   class UsersQuery
     PER_PAGE = 25
 
-    def initialize(before_id: nil)
+    # `scope:` lets the caller decide what to eager-load (e.g. User.with_attached_avatar_image)
+    # instead of this query object hardcoding one specific attachment — see design.md under
+    # openspec/changes/quality-hardening.
+    def initialize(before_id: nil, scope: User.all)
       @before_id = before_id
+      @scope = scope
     end
 
     def records
@@ -25,15 +29,15 @@ module Admin
     end
 
     private
-      attr_reader :before_id
+      attr_reader :before_id, :scope
 
       # Fetching PER_PAGE + 1 rows and slicing is how #has_more? knows whether another page
       # exists without a separate COUNT(*) query.
       def fetched
         @fetched ||= begin
-          scope = User.order(id: :desc).limit(PER_PAGE + 1)
-          scope = scope.where(User.arel_table[:id].lt(before_id)) if before_id
-          scope.to_a
+          relation = scope.order(id: :desc).limit(PER_PAGE + 1)
+          relation = relation.where(User.arel_table[:id].lt(before_id)) if before_id
+          relation.to_a
         end
       end
 

@@ -1,7 +1,7 @@
 module Admin
   class SpreadsheetImportsController < Admin::BaseController
     def index
-      query = ::Admin::SpreadsheetImportsQuery.new(before_id: params[:before_id])
+      query = ::Admin::SpreadsheetImportsQuery.new(before_id: params[:before_id], scope: SpreadsheetImport.with_attached_file)
 
       render inertia: "admin/spreadsheet_imports/index", props: {
         imports: InertiaRails.scroll(query.metadata) { imports_json(query.records) }

@@ -11,11 +11,11 @@ type Props = {
   onClose: () => void
 }
 
-// Replaces the old dedicated admin/spreadsheet_imports/show.tsx page - opened from a row in the
-// import history (seeded from that row's already-loaded data) or right after an upload (seeded
-// from imports[0] - see ImportUploader/design.md). Subscribes over the same
-// SpreadsheetImportChannel/useImportProgress the old page used; useImportProgress(null, ...)
-// while closed skips subscribing entirely (see useChannel).
+// Replaces the old dedicated admin/spreadsheet_imports/show.tsx page - opens automatically right
+// after a fresh upload (seeded from imports[0] - see ImportUploader/design.md), never from
+// clicking a history row. Subscribes over the same SpreadsheetImportChannel/useImportProgress the
+// old page used; useImportProgress(null, ...) while closed skips subscribing entirely (see
+// useChannel).
 export default function ImportProgressModal({ spreadsheetImport, onClose }: Props) {
   const [ summary, setSummary ] = useState<SpreadsheetImportSummary | null>(spreadsheetImport)
 
@@ -37,7 +37,11 @@ export default function ImportProgressModal({ spreadsheetImport, onClose }: Prop
   const progressPercent = total_rows ? Math.min(100, Math.round((processed_rows / total_rows) * 100)) : 0
 
   return (
-    <Modal open={spreadsheetImport !== null} onClose={onClose} title={spreadsheetImport?.filename ?? 'Import status'}>
+    <Modal
+      open={spreadsheetImport !== null}
+      onClose={onClose}
+      title={spreadsheetImport?.filename ?? 'Import status'}
+    >
       <div className="mb-4">
         <ImportStatusBadge status={status} />
       </div>
